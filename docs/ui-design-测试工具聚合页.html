@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>测试工具聚合页 · 界面设计稿</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --pink-50: #fdf2f8;
+      --pink-100: #fce7f3;
+      --pink-200: #fbcfe8;
+      --pink-400: #f472b6;
+      --blue-50: #eff6ff;
+      --blue-100: #dbeafe;
+      --blue-200: #bfdbfe;
+      --blue-400: #60a5fa;
+      --blue-500: #3b82f6;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --card: rgba(255, 255, 255, 0.92);
+      --card-border: rgba(255, 255, 255, 0.8);
+      --shadow: 0 12px 40px rgba(59, 130, 246, 0.08), 0 4px 16px rgba(244, 114, 182, 0.06);
+      --radius: 14px;
+      --radius-sm: 10px;
+      --sidebar-w: 240px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+      color: var(--slate-700);
+      background:
+        radial-gradient(ellipse 120% 80% at 0% 0%, var(--pink-100) 0%, transparent 55%),
+        radial-gradient(ellipse 100% 70% at 100% 10%, var(--blue-100) 0%, transparent 50%),
+        linear-gradient(165deg, var(--pink-50) 0%, #f8fafc 45%, var(--blue-50) 100%);
+      background-attachment: fixed;
+    }
+
+    .app {
+      min-height: 100vh;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 881px) {
+      .app {
+        padding-left: var(--sidebar-w);
+      }
+    }
+
+    /* 侧栏：固定在视口左侧，内容过多时侧栏内部滚动 */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 20;
+      width: var(--sidebar-w);
+      height: 100vh;
+      max-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: 28px 20px 32px;
+      border-right: 1px solid rgba(148, 163, 184, 0.15);
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @media (min-width: 881px) {
+      .sidebar {
+        /* 与 max-width:1200px 主内容区左缘对齐：大屏时侧栏不贴死浏览器最左侧 */
+        left: max(0px, calc(50% - 600px));
+      }
+    }
+
+    @media (max-width: 880px) {
+      .app {
+        padding-left: 0;
+      }
+      .sidebar {
+        position: sticky;
+        left: auto;
+        top: 0;
+        width: 100%;
+        height: auto;
+        max-height: min(48vh, 320px);
+        border-right: none;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      }
+      .nav-groups {
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 12px 16px 8px;
+        gap: 8px;
+      }
+      .nav-group {
+        flex: 1 1 auto;
+        min-width: 140px;
+      }
+      .nav-group-title {
+        font-size: 11px;
+      }
+      .main {
+        padding: 20px 16px 48px;
+        margin-left: 0;
+        max-width: none;
+      }
+    }
+
+    .brand {
+      padding: 0 4px 20px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      margin-bottom: 20px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--slate-800);
+      letter-spacing: -0.02em;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      font-size: 12px;
+      color: var(--slate-600);
+      line-height: 1.45;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--blue-500);
+      background: var(--blue-100);
+      border-radius: 999px;
+    }
+
+    .nav-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .nav-group-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      margin: 0 0 8px 4px;
+    }
+
+    .nav-group ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-group li {
+      margin-bottom: 4px;
+    }
+
+    .nav-group a {
+      display: block;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--slate-600);
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .nav-group a:hover {
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--slate-800);
+    }
+
+    .nav-group a.active {
+      background: linear-gradient(135deg, rgba(252, 231, 243, 0.9), rgba(219, 234, 254, 0.95));
+      color: var(--slate-800);
+      border-color: rgba(244, 114, 182, 0.25);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.06);
+    }
+
+    /* 主区：为固定侧栏留出横向空间 */
+    .main {
+      padding: 32px 36px 56px;
+      overflow-x: hidden;
+      margin-left: 0;
+      max-width: calc(1200px - var(--sidebar-w));
+    }
+
+    @media (min-width: 881px) {
+      .main {
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+
+    .section {
+      scroll-margin-top: 24px;
+      margin-bottom: 36px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--slate-800);
+    }
+
+    .section-head span {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px 24px;
+      margin-bottom: 16px;
+    }
+
+    .card:last-child {
+      margin-bottom: 0;
+    }
+
+    .card-title {
+      margin: 0 0 14px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--slate-800);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink-400), var(--blue-400));
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.5;
+      margin: 0 0 14px;
+      padding: 10px 12px;
+      background: linear-gradient(90deg, var(--pink-50), var(--blue-50));
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--blue-300);
+    }
+
+    .dropzone {
+      border: 2px dashed rgba(96, 165, 250, 0.45);
+      border-radius: var(--radius-sm);
+      padding: 36px 20px;
+      text-align: center;
+      color: var(--slate-600);
+      font-size: 14px;
+      background: rgba(239, 246, 255, 0.5);
+      margin-bottom: 14px;
+    }
+
+    .dropzone strong {
+      color: var(--blue-500);
+    }
+
+    textarea,
+    input[type="text"] {
+      width: 100%;
+      font-family: ui-monospace, "Cascadia Code", monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 12px 14px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: var(--radius-sm);
+      resize: vertical;
+      min-height: 120px;
+      background: #fff;
+      color: var(--slate-800);
+    }
+
+    input[type="text"].single {
+      min-height: auto;
+      font-family: inherit;
+    }
+
+    textarea:focus,
+    input:focus {
+      outline: none;
+      border-color: var(--blue-400);
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .row:last-child {
+      margin-bottom: 0;
+    }
+
+    label.choice {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--slate-600);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.15s;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-ghost {
+      color: var(--slate-600);
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .output {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      word-break: break-all;
+      color: var(--slate-700);
+    }
+
+    .output.muted {
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 640px) {
+      .compare-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .compare-grid label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .diff-preview {
+      margin-top: 14px;
+      padding: 14px;
+      background: #f1f5f9;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-family: ui-monospace, monospace;
+      line-height: 1.6;
+      color: var(--slate-600);
+      border: 1px dashed rgba(148, 163, 184, 0.4);
+    }
+
+    .diff-preview .path {
+      color: #c026d3;
+    }
+
+    .diff-preview .ok {
+      color: #059669;
+    }
+
+    .color-row {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 560px) {
+      .color-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .swatch {
+      width: 120px;
+      height: 120px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #93c5fd, #f9a8d4);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    }
+
+    .footer-note {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+      padding: 20px 16px;
+    }
+
+    .design-tag {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 30;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      box-shadow: var(--shadow);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="工具分类导航">
+      <div class="brand">
+        <h1>测试工具箱</h1>
+        <p>常用小工具一页搞定，纯浏览器端处理</p>
+        <span class="badge">设计稿 · 交互示意</span>
+      </div>
+      <nav class="nav-groups" aria-label="分类">
+        <div class="nav-group">
+          <p class="nav-group-title">编码与校验</p>
+          <ul>
+            <li><a href="#sec-md5-file">文件 MD5</a></li>
+            <li><a href="#sec-md5-text">文本 MD5</a></li>
+          </ul>
+        </div>
+        <div class="nav-group">
+          <p class="nav-group-title">格式与时间</p>
+          <ul>
+            <li><a href="#sec-json">JSON 格式化</a></li>
+            <li><a href="#sec-time">时间戳转换</a></li>
+          </ul>
+        </div>
+        <div class="nav-group">
+          <p class="nav-group-title">对比与预览</p>
+          <ul>
+            <li><a href="#sec-compare">文本 / JSON 比较</a></li>
+            <li><a href="#sec-color">RGB ↔ 十六进制</a></li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <!-- 编码与校验 -->
+      <section class="section" id="sec-md5-file" aria-labelledby="h-md5-file">
+        <div class="section-head">
+          <h2 id="h-md5-file">文件 MD5</h2>
+          <span>单文件 ≤ 200 MB · 拖拽或选择</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>上传文件</h3>
+          <p class="hint">文件仅在本地读取并计算摘要，不上传服务器。结果为小写十六进制 MD5。</p>
+          <div class="dropzone" role="button" tabindex="0">
+            将文件 <strong>拖拽到此处</strong>，或点击选择文件
+          </div>
+          <div class="row">
+            <button type="button" class="btn btn-primary">选择文件</button>
+            <button type="button" class="btn btn-ghost">清空</button>
+          </div>
+          <p class="output muted">MD5 结果将显示在这里 · 一键复制</p>
+        </div>
+      </section>
+
+      <section class="section" id="sec-md5-text" aria-labelledby="h-md5-text">
+        <div class="section-head">
+          <h2 id="h-md5-text">文本 MD5</h2>
+          <span>按 UTF-8 编码计算</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>输入文本</h3>
+          <textarea placeholder="在此粘贴或输入文本…" rows="5"></textarea>
+          <div class="row" style="margin-top: 12px;">
+            <button type="button" class="btn btn-primary">计算 MD5</button>
+            <button type="button" class="btn btn-ghost">复制结果</button>
+          </div>
+          <p class="output muted" style="margin-top: 12px;">32 位小写 MD5</p>
+        </div>
+      </section>
+
+      <!-- 格式与时间 -->
+      <section class="section" id="sec-json" aria-labelledby="h-json">
+        <div class="section-head">
+          <h2 id="h-json">JSON 格式化</h2>
+          <span>缩进 2 空格</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>原始 JSON</h3>
+          <textarea placeholder='例如：{"a":1,"b":[2,3]}' rows="6"></textarea>
+          <div class="row" style="margin-top: 12px;">
+            <button type="button" class="btn btn-primary">格式化</button>
+            <button type="button" class="btn btn-ghost">复制结果</button>
+          </div>
+          <p class="output muted" style="margin-top: 12px;">格式化后的 JSON</p>
+        </div>
+      </section>
+
+      <section class="section" id="sec-time" aria-labelledby="h-time">
+        <div class="section-head">
+          <h2 id="h-time">时间戳转时间</h2>
+          <span>默认「秒」· 本地时区展示</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>输入 Unix 时间戳</h3>
+          <div class="row">
+            <input class="single" type="text" placeholder="例如 1700000000 或 1700000000000" style="max-width: 280px;" />
+          </div>
+          <div class="row">
+            <label class="choice"><input type="radio" name="ts-unit" checked /> 秒（10 位）</label>
+            <label class="choice"><input type="radio" name="ts-unit" /> 毫秒（13 位）</label>
+          </div>
+          <div class="row">
+            <button type="button" class="btn btn-primary">转换</button>
+          </div>
+          <p class="output muted" style="margin-top: 8px;">可读日期时间</p>
+        </div>
+      </section>
+
+      <!-- 对比与预览 -->
+      <section class="section" id="sec-compare" aria-labelledby="h-compare">
+        <div class="section-head">
+          <h2 id="h-compare">文本 / JSON 比较</h2>
+          <span>纯文本或 JSON · 严格 / 非严格</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>比较模式</h3>
+          <div class="row">
+            <label class="choice"><input type="radio" name="cmp-mode" checked /> 纯文本</label>
+            <label class="choice"><input type="radio" name="cmp-mode" /> JSON</label>
+          </div>
+          <div class="row">
+            <label class="choice"><input type="radio" name="cmp-strict" checked /> 严格（顺序 + 内容）</label>
+            <label class="choice"><input type="radio" name="cmp-strict" /> 非严格（对象键无序 · 数组 multiset）</label>
+          </div>
+          <div class="compare-grid" style="margin-top: 16px;">
+            <div>
+              <label>左侧内容</label>
+              <textarea rows="5" placeholder="第一段…"></textarea>
+            </div>
+            <div>
+              <label>右侧内容</label>
+              <textarea rows="5" placeholder="第二段…"></textarea>
+            </div>
+          </div>
+          <div class="row" style="margin-top: 12px;">
+            <button type="button" class="btn btn-primary">开始比较</button>
+          </div>
+          <div class="diff-preview" aria-label="结构化 diff 示意">
+            <span class="path">$.user.name</span>：值不同（示意）<br />
+            <span class="path">$.items[2]</span>：缺失 / 多余（示意）<br />
+            <span class="ok">其余字段一致（示意）</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-color" aria-labelledby="h-color">
+        <div class="section-head">
+          <h2 id="h-color">RGB ↔ 十六进制</h2>
+          <span>实时预览颜色</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>互转输入</h3>
+          <p class="hint">RGB 仅支持「R,G,B」三个 0–255 整数，英文逗号分隔，例如 <code>255,255,255</code>。请勿使用 <code>rgb(...)</code> 写法。</p>
+          <div class="color-row">
+            <div>
+              <div class="row" style="margin-bottom: 8px;">
+                <label style="font-size:12px;font-weight:600;color:#64748b;width:100%;">RGB</label>
+              </div>
+              <input class="single" type="text" placeholder="255, 182, 193" />
+              <div class="row" style="margin-top: 12px;">
+                <label style="font-size:12px;font-weight:600;color:#64748b;width:100%;">Hex（可带或不带 #）</label>
+              </div>
+              <input class="single" type="text" placeholder="#FFB6C1 或 FFB6C1" />
+              <div class="row" style="margin-top: 14px;">
+                <button type="button" class="btn btn-primary">转换</button>
+                <button type="button" class="btn btn-ghost">复制</button>
+              </div>
+            </div>
+            <div>
+              <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:8px;">颜色预览</label>
+              <div class="swatch" title="示意色块"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <p class="footer-note">本页为界面设计稿：布局、分类、文案与控件位置供评审；正式版将接入真实计算与离线能力。</p>
+    </main>
+  </div>
+
+  <div class="design-tag">ui-design · 粉蓝主题</div>
+
+  <script>
+    (function () {
+      var links = document.querySelectorAll('.nav-group a[href^="#"]');
+      var sections = document.querySelectorAll('.section[id]');
+
+      function setActive(id) {
+        links.forEach(function (a) {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        });
+      }
+
+      links.forEach(function (a) {
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          var id = this.getAttribute('href').slice(1);
+          var el = document.getElementById(id);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setActive(id);
+          }
+        });
+      });
+
+      var observer = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.25) {
+              setActive(entry.target.id);
+            }
+          });
+        },
+        { rootMargin: '-20% 0px -55% 0px', threshold: [0, 0.25, 0.5] }
+      );
+
+      sections.forEach(function (sec) {
+        observer.observe(sec);
+      });
+
+      if (sections.length) setActive(sections[0].id);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="测试常用工具聚合：MD5、JSON、时间与时间戳、进制转换、文本比较、颜色，纯浏览器端处理" />
+  <title>测试工具箱</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="工具分类导航">
+      <div class="brand">
+        <h1>测试工具箱</h1>
+        <p>常用小工具一页搞定，纯浏览器端处理</p>
+        <span class="badge">纯前端 · 可离线</span>
+      </div>
+      <nav class="nav-groups" aria-label="分类">
+        <div class="nav-group">
+          <p class="nav-group-title">编码与校验</p>
+          <ul>
+            <li><a href="#sec-md5-file">文件 MD5</a></li>
+            <li><a href="#sec-md5-text">文本 MD5</a></li>
+            <li><a href="#sec-radix">进制转换</a></li>
+          </ul>
+        </div>
+        <div class="nav-group">
+          <p class="nav-group-title">格式与时间</p>
+          <ul>
+            <li><a href="#sec-json">JSON 格式化</a></li>
+            <li><a href="#sec-time">时间戳转换</a></li>
+          </ul>
+        </div>
+        <div class="nav-group">
+          <p class="nav-group-title">对比与预览</p>
+          <ul>
+            <li><a href="#sec-compare">文本 / JSON 比较</a></li>
+            <li><a href="#sec-color">RGB ↔ 十六进制</a></li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <section class="section" id="sec-md5-file" aria-labelledby="h-md5-file">
+        <div class="section-head">
+          <h2 id="h-md5-file">文件 MD5</h2>
+          <span>单文件 ≤ 200 MB · 拖拽或选择</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>上传文件</h3>
+          <p class="hint">文件仅在本地读取并计算摘要，不上传服务器。结果为小写十六进制 MD5。</p>
+          <input type="file" id="md5-file-input" hidden />
+          <div class="dropzone" id="md5-file-drop" role="button" tabindex="0" aria-label="拖拽文件到此处或点击选择">
+            将文件 <strong>拖拽到此处</strong>，或点击下方选择文件
+          </div>
+          <div class="row">
+            <button type="button" class="btn btn-primary" id="md5-file-pick">选择文件</button>
+            <button type="button" class="btn btn-ghost" id="md5-file-clear">清空</button>
+          </div>
+          <div class="output muted" id="md5-file-output-wrap" style="margin-top: 12px;">
+            <span class="output-text" id="md5-file-output">MD5 结果将显示在这里</span>
+            <button type="button" class="btn btn-ghost" id="md5-file-copy" disabled>复制结果</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-md5-text" aria-labelledby="h-md5-text">
+        <div class="section-head">
+          <h2 id="h-md5-text">文本 MD5</h2>
+          <span>按 UTF-8 编码计算</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>输入文本</h3>
+          <textarea id="md5-text-input" placeholder="在此粘贴或输入文本…" rows="5"></textarea>
+          <div class="row" style="margin-top: 12px;">
+            <button type="button" class="btn btn-primary" id="md5-text-calc">计算 MD5</button>
+            <button type="button" class="btn btn-ghost" id="md5-text-copy">复制结果</button>
+          </div>
+          <div class="output muted" id="md5-text-output-wrap" style="margin-top: 12px;">
+            <span class="output-text" id="md5-text-output">32 位小写 MD5</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-json" aria-labelledby="h-json">
+        <div class="section-head">
+          <h2 id="h-json">JSON 格式化</h2>
+          <span>缩进 2 空格</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>原始 JSON</h3>
+          <textarea id="json-input" placeholder='例如：{"a":1,"b":[2,3]}' rows="6"></textarea>
+          <div class="row" style="margin-top: 12px;">
+            <button type="button" class="btn btn-primary" id="json-format">格式化</button>
+            <button type="button" class="btn btn-ghost" id="json-copy">复制 JSON 文本</button>
+          </div>
+          <p class="hint err" id="json-error" style="display: none; margin-top: 12px;"></p>
+          <div id="json-toolbar" class="json-toolbar" style="display: none; margin-top: 12px;">
+            <div class="row" style="margin-bottom: 8px;">
+              <input class="single" type="text" id="json-find" placeholder="在字符串值中查找…" style="flex: 1; min-width: 140px;" />
+              <button type="button" class="btn btn-primary" id="json-find-run">高亮</button>
+              <button type="button" class="btn btn-ghost" id="json-find-prev">上一个</button>
+              <button type="button" class="btn btn-ghost" id="json-find-next">下一个</button>
+              <label class="choice"><input type="checkbox" id="json-find-ci" /> 忽略大小写</label>
+            </div>
+            <p id="json-find-meta" class="json-find-meta" aria-live="polite"></p>
+            <p class="hint" style="margin: 0 0 8px; font-size: 12px;">在<strong>键名</strong>与<strong>值</strong>（字符串为解析后的原文；数字/布尔/null 按界面文本）中查找；输入后点「高亮」或稍停自动高亮（粉色底）。查找框内按 F3 / Shift+F3 可下/上一处。<strong>全部替换</strong>对键名与上述值做子串替换（数组下标不变；数字替换后须仍为合法数字）。替换可沿用上次查找关键字（即使已清空查找框）。折叠块内文字仍可命中，滚动树即可看到。</p>
+            <div class="row" style="margin-bottom: 8px;">
+              <input class="single" type="text" id="json-repl-from" placeholder="要替换的子串（键名+字符串值）" style="flex: 1; min-width: 120px;" />
+              <input class="single" type="text" id="json-repl-to" placeholder="替换为（可留空）" style="flex: 1; min-width: 120px;" />
+              <button type="button" class="btn btn-ghost" id="json-repl-all">全部替换</button>
+            </div>
+            <div class="row">
+              <button type="button" class="btn btn-ghost" id="json-expand-all">全部展开</button>
+              <button type="button" class="btn btn-ghost" id="json-collapse-all">全部折叠</button>
+            </div>
+          </div>
+          <div class="json-tree" id="json-tree" aria-label="JSON 树状视图">
+            <p class="json-tree-placeholder">请先点击「格式化」生成可折叠树状视图</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-time" aria-labelledby="h-time">
+        <div class="section-head">
+          <h2 id="h-time">时间与时间戳互转</h2>
+          <span>时间戳 → 本地显示；北京时间 → 时间戳</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>Unix 时间戳 → 可读时间</h3>
+          <p class="hint">下方「秒 / 毫秒」表示你如何理解输入的数字；结果为浏览器<strong>本地时区</strong>下的日期时间。</p>
+          <div class="row">
+            <input class="single" type="text" id="ts-input" placeholder="例如 1700000000 或 1700000000000" style="max-width: 320px;" />
+          </div>
+          <div class="row">
+            <label class="choice"><input type="radio" name="ts-in-unit" id="ts-in-sec" value="sec" checked /> 输入为秒（10 位）</label>
+            <label class="choice"><input type="radio" name="ts-in-unit" id="ts-in-ms" value="ms" /> 输入为毫秒（13 位）</label>
+          </div>
+          <div class="row">
+            <button type="button" class="btn btn-primary" id="ts-convert">转换</button>
+          </div>
+          <div class="output muted" id="ts-output-wrap" style="margin-top: 8px;">
+            <span class="output-text" id="ts-output">可读日期时间</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>北京时间 → Unix 时间戳</h3>
+          <p class="hint">日期时间均按<strong>北京时间（东八区，Asia/Shanghai）</strong>理解，与电脑系统时区无关。打开页面时已默认填入当前北京时间，可任意修改。</p>
+          <div class="row" style="align-items: flex-end; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 240px;">
+              <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:6px;" for="dt-bj">日期与时间（北京时间）</label>
+              <input class="single" type="text" id="dt-bj" placeholder="2026-03-25 10:30:45" autocomplete="off" style="width: 100%; max-width: 320px;" />
+            </div>
+            <button type="button" class="btn btn-ghost" id="dt-fill-bj">填入当前北京时间</button>
+          </div>
+          <p class="hint" style="margin-top: -4px;">格式：<code>YYYY-MM-DD HH:mm:ss</code>；秒可省略（按 :00 计）。与电脑系统时区无关，一律按东八区解析。</p>
+          <div class="row">
+            <label class="choice"><input type="radio" name="dt-out-unit" id="dt-out-sec" value="sec" checked /> 输出秒（整数）</label>
+            <label class="choice"><input type="radio" name="dt-out-unit" id="dt-out-ms" value="ms" /> 输出毫秒（整数）</label>
+          </div>
+          <div class="row">
+            <button type="button" class="btn btn-primary" id="dt-convert">转换为时间戳</button>
+            <button type="button" class="btn btn-ghost" id="dt-ts-copy" disabled>复制时间戳</button>
+          </div>
+          <div class="output muted" id="dt-ts-wrap" style="margin-top: 8px;">
+            <span class="output-text" id="dt-ts-out">转换结果将显示在这里</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-radix" aria-labelledby="h-radix">
+        <div class="section-head">
+          <h2 id="h-radix">进制转换</h2>
+          <span>二进制 · 十进制 · 十六进制（整数）</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>互转</h3>
+          <p class="hint">选择「输入」使用的进制，在输入框填写数字；支持十六进制前缀 <code>0x</code>、二进制前缀 <code>0b</code>（可省略）。仅支持整数；位数过长时会提示错误。</p>
+          <div class="row">
+            <label class="choice"><input type="radio" name="radix-in-base" id="radix-bin" value="2" checked /> 输入为二进制</label>
+            <label class="choice"><input type="radio" name="radix-in-base" id="radix-dec" value="10" /> 输入为十进制</label>
+            <label class="choice"><input type="radio" name="radix-in-base" id="radix-hex" value="16" /> 输入为十六进制</label>
+          </div>
+          <div class="row">
+            <input class="single" type="text" id="radix-input" placeholder="例如 1010 / 255 / ff 或 0xff" style="max-width: 100%;" />
+          </div>
+          <div class="row">
+            <button type="button" class="btn btn-primary" id="radix-convert">转换</button>
+          </div>
+          <div class="radix-results muted" id="radix-results">二进制、十进制、十六进制结果将显示在这里</div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-compare" aria-labelledby="h-compare">
+        <div class="section-head">
+          <h2 id="h-compare">文本 / JSON 比较</h2>
+          <span>纯文本或 JSON · 严格 / 非严格</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>比较模式</h3>
+          <div class="row">
+            <label class="choice"><input type="radio" name="cmp-mode" id="cmp-mode-plain" value="plain" checked /> 纯文本</label>
+            <label class="choice"><input type="radio" name="cmp-mode" id="cmp-mode-json" value="json" /> JSON</label>
+          </div>
+          <div class="row" id="cmp-strict-row">
+            <label class="choice"><input type="radio" name="cmp-strict" id="cmp-strict-yes" value="strict" checked /> 严格（顺序 + 内容）</label>
+            <label class="choice"><input type="radio" name="cmp-strict" id="cmp-strict-no" value="loose" /> 非严格（对象键无序 · 数组 multiset）</label>
+          </div>
+          <div class="compare-grid" style="margin-top: 16px;">
+            <div>
+              <label for="cmp-left">左侧内容</label>
+              <textarea id="cmp-left" rows="6" placeholder="第一段…"></textarea>
+            </div>
+            <div>
+              <label for="cmp-right">右侧内容</label>
+              <textarea id="cmp-right" rows="6" placeholder="第二段…"></textarea>
+            </div>
+          </div>
+          <div class="row" style="margin-top: 12px;">
+            <button type="button" class="btn btn-primary" id="cmp-run">开始比较</button>
+          </div>
+          <div class="diff-preview" id="cmp-json-out" style="display: none;" aria-live="polite"></div>
+          <div id="cmp-text-out-wrap" style="display: none;" aria-live="polite">
+            <p class="hint" style="margin-top: 14px; margin-bottom: 10px;">
+              与上方左右输入对应：<strong>仅不一致处</strong>标红，相同内容无标记。两侧可同步滚动。
+            </p>
+            <div class="compare-result-grid">
+              <div>
+                <span class="compare-result-label">左侧结果</span>
+                <div class="compare-result-panel" id="cmp-out-left" tabindex="0"></div>
+              </div>
+              <div>
+                <span class="compare-result-label">右侧结果</span>
+                <div class="compare-result-panel" id="cmp-out-right" tabindex="0"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-color" aria-labelledby="h-color">
+        <div class="section-head">
+          <h2 id="h-color">RGB ↔ 十六进制</h2>
+          <span>实时预览颜色</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>互转输入（二选一）</h3>
+          <p class="hint">同一时间只填一种：选择「输入 RGB」或「输入 Hex」，切换类型时另一输入框会自动清空。RGB 仅支持「R,G,B」三个 0–255 整数，英文逗号分隔，例如 <code>255,255,255</code>。请勿使用 <code>rgb(...)</code>。</p>
+          <div class="row">
+            <label class="choice"><input type="radio" name="color-src" id="color-src-rgb" value="rgb" checked /> 输入 RGB</label>
+            <label class="choice"><input type="radio" name="color-src" id="color-src-hex" value="hex" /> 输入 Hex</label>
+          </div>
+          <div class="color-row">
+            <div>
+              <div id="color-rgb-field-wrap">
+                <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:8px;" for="color-rgb">RGB</label>
+                <input class="single" type="text" id="color-rgb" placeholder="255, 182, 193" />
+              </div>
+              <div id="color-hex-field-wrap" style="display: none; margin-top: 12px;">
+                <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:8px;" for="color-hex">Hex（可带或不带 #，支持 3 位简写）</label>
+                <input class="single" type="text" id="color-hex" placeholder="#FFB6C1 或 FFB6C1" />
+              </div>
+              <div class="output muted" id="color-result-wrap" style="margin-top: 14px; display: block;">
+                <span class="output-text" id="color-result">转换结果：HEX 与 RGB 将显示在这里</span>
+              </div>
+              <div class="row" style="margin-top: 14px;">
+                <button type="button" class="btn btn-primary" id="color-convert">转换</button>
+                <button type="button" class="btn btn-ghost" id="color-copy">复制结果</button>
+              </div>
+            </div>
+            <div>
+              <span style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:8px;">颜色预览</span>
+              <div class="swatch" id="color-swatch" title="颜色预览"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <p class="footer-note">所有数据仅在本地浏览器处理；首次联网打开后可配合 Service Worker 离线使用。</p>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
