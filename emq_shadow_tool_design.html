@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>设计稿 · 顶部 Tab + EMQ 设备影子（网页版）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --pink-50: #fdf2f8;
+      --pink-100: #fce7f3;
+      --blue-50: #eff6ff;
+      --blue-100: #dbeafe;
+      --blue-500: #3b82f6;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --card: rgba(255, 255, 255, 0.92);
+      --radius: 14px;
+      --radius-sm: 10px;
+      --shadow: 0 12px 40px rgba(59, 130, 246, 0.08), 0 4px 16px rgba(244, 114, 182, 0.06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans SC", system-ui, sans-serif;
+      color: var(--slate-700);
+      background:
+        radial-gradient(ellipse 120% 80% at 0% 0%, var(--pink-100) 0%, transparent 55%),
+        radial-gradient(ellipse 100% 70% at 100% 10%, var(--blue-100) 0%, transparent 50%),
+        linear-gradient(165deg, var(--pink-50) 0%, #f8fafc 45%, var(--blue-50) 100%);
+      background-attachment: fixed;
+    }
+    /* —— 顶栏：站点级 Tab（整页切换，非左侧栏） —— */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+    .site-header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 12px 20px 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .site-brand h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--slate-800);
+    }
+    .site-brand p {
+      margin: 4px 0 12px;
+      font-size: 12px;
+      color: var(--slate-500);
+    }
+    .site-tabs {
+      display: flex;
+      gap: 4px;
+      padding-bottom: 0;
+    }
+    .site-tab {
+      appearance: none;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--slate-600);
+      padding: 10px 18px 14px;
+      cursor: pointer;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      position: relative;
+    }
+    .site-tab:hover { color: var(--slate-800); background: rgba(59, 130, 246, 0.06); }
+    .site-tab[aria-selected="true"] {
+      color: var(--blue-500);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+    .site-tab[aria-selected="true"]::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 0;
+      height: 3px;
+      background: var(--blue-500);
+      border-radius: 2px 2px 0 0;
+    }
+    .page-view { display: none; }
+    .page-view.active { display: block; }
+    .page-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 20px 48px;
+    }
+    .design-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--pink-100);
+      color: #9d174d;
+      margin-bottom: 16px;
+    }
+    .wireframe {
+      border: 2px dashed rgba(100, 116, 139, 0.35);
+      border-radius: var(--radius);
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.5);
+      color: var(--slate-600);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    /* —— EMQ 页：与桌面版 Notebook 对齐的子 Tab —— */
+    .emq-page-title {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .emq-page-title h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      color: var(--slate-800);
+    }
+    .emq-page-title span {
+      font-size: 13px;
+      color: var(--slate-500);
+    }
+    .sub-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .sub-tab {
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--slate-600);
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .sub-tab[aria-selected="true"] {
+      border-color: var(--blue-500);
+      color: var(--blue-500);
+      background: var(--blue-50);
+    }
+    .sub-panel { display: none; }
+    .sub-panel.active { display: block; }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      margin: 0 0 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--slate-800);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f472b6, #60a5fa);
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      margin-bottom: 12px;
+    }
+    .row label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--slate-600);
+      min-width: 88px;
+    }
+    .row .grow { flex: 1; min-width: 200px; }
+    input[type="text"], select, textarea {
+      width: 100%;
+      max-width: 100%;
+      padding: 10px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 13px;
+    }
+    textarea.mock-log {
+      min-height: 220px;
+      resize: vertical;
+      background: #f8fafc;
+      color: var(--slate-600);
+      line-height: 1.5;
+    }
+    .btn {
+      padding: 9px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary { background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #fff; }
+    .btn-ghost { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(148, 163, 184, 0.4); color: var(--slate-700); }
+    .btn-warn { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .hint {
+      font-size: 12px;
+      color: var(--slate-500);
+      margin: 0 0 10px;
+    }
+    .hint.info { color: #2563eb; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 800px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: var(--radius-sm);
+      background: #fff;
+    }
+    table.mock-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .mock-table th {
+      text-align: left;
+      padding: 10px 12px;
+      background: #f1f5f9;
+      color: var(--slate-700);
+      font-weight: 600;
+      border-bottom: 1px solid #e2e8f0;
+      white-space: nowrap;
+    }
+    .mock-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      color: var(--slate-600);
+      vertical-align: top;
+    }
+    .mock-table tr:hover td { background: #f8fafc; }
+    .pill { font-size: 11px; padding: 2px 8px; border-radius: 6px; background: #dcfce7; color: #166534; }
+    .pill.bad { background: #fee2e2; color: #991b1b; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .footer-note {
+      margin-top: 28px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: var(--slate-500);
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: var(--radius-sm);
+      border: 1px dashed rgba(148, 163, 184, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div class="site-brand">
+        <h1>测试工具聚合</h1>
+        <p>站点级顶部 Tab：整页切换（不占用左侧工具分类栏）</p>
+      </div>
+      <div class="site-tabs" role="tablist" aria-label="站点页面">
+        <button type="button" class="site-tab" role="tab" id="tab-site-toolkit" aria-selected="true" aria-controls="view-toolkit" data-view="view-toolkit">常用测试工具</button>
+        <button type="button" class="site-tab" role="tab" id="tab-site-emq" aria-selected="false" aria-controls="view-emq" data-view="view-emq">EMQ 设备影子</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 视图 A：现有 test_web_tools（侧栏 + 主区）占位说明 -->
+  <div id="view-toolkit" class="page-view active" role="tabpanel" aria-labelledby="tab-site-toolkit">
+    <div class="page-wrap">
+      <div class="wireframe">
+        <strong>此 Tab 对应现有页面</strong>：<code>test_web_tools/index.html</code>（左侧分类导航 + 右侧多工具区块）。集成时可将整页作为独立路由或 iframe 嵌入，保持侧栏逻辑不变。
+        <p style="margin: 16px 0 0;">布局示意：左侧固定宽约 240px 导航；右侧主内容纵向滚动。与当前线上样式一致即可。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 视图 B：EMQ 工具网页版 -->
+  <div id="view-emq" class="page-view" role="tabpanel" aria-labelledby="tab-site-emq" hidden>
+    <div class="page-wrap">
+      <div class="emq-page-title">
+        <h2>设备影子信息获取工具</h2>
+        <span>多字段监控 · 型号与字段配置</span>
+      </div>
+
+      <div class="sub-tabs" role="tablist" aria-label="EMQ 功能分区">
+        <button type="button" class="sub-tab" role="tab" aria-selected="true" data-sub="emq-fetch">获取设备字段</button>
+        <button type="button" class="sub-tab" role="tab" aria-selected="false" data-sub="emq-preview">已保存配置预览</button>
+        <button type="button" class="sub-tab" role="tab" aria-selected="false" data-sub="emq-monitor">字段监控配置</button>
+      </div>
+
+      <!-- 子 Tab 1：获取设备字段 -->
+      <div id="emq-fetch" class="sub-panel active" role="tabpanel">
+        <div class="card">
+          <h3 class="card-title"><span class="dot"></span>型号与文档</h3>
+          <div class="row">
+            <label for="mock-model">设备型号</label>
+            <div class="grow row" style="margin:0; flex:1;">
+              <select id="mock-model" style="flex:1;">
+                <option>（示例）SmartDevice-X1</option>
+                <option>从 device_models_config 加载</option>
+              </select>
+              <button type="button" class="btn btn-primary">保存型号配置</button>
+              <button type="button" class="btn btn-warn">删除型号</button>
+            </div>
+          </div>
+          <div class="row">
+            <label for="mock-doc">文档 URL</label>
+            <div class="grow row" style="margin:0; flex:1;">
+              <input id="mock-doc" type="text" placeholder="内部 Wiki / 说明页 URL，用于解析字段说明" />
+              <button type="button" class="btn btn-primary">加载字段说明</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot"></span>加载日志</h3>
+          <div class="row" style="justify-content: flex-end; margin-bottom: 8px;">
+            <button type="button" class="btn btn-ghost">清空日志</button>
+          </div>
+          <textarea class="mock-log" readonly>[设计占位] 对应 Tk 版 Tab1 底部 Text：拉取文档、解析表格、保存型号等流水日志。
+📂 尝试加载配置文件…
+✅ 已恢复 12 个字段说明
+🔗 文档解析完成 …</textarea>
+        </div>
+      </div>
+
+      <!-- 子 Tab 2：已保存配置预览 -->
+      <div id="emq-preview" class="sub-panel" role="tabpanel" hidden>
+        <div class="card">
+          <h3 class="card-title"><span class="dot"></span>选择型号</h3>
+          <div class="row">
+            <label>设备型号</label>
+            <select class="grow" style="max-width:320px;">
+              <option>与 Tab1 / 配置文件同步</option>
+            </select>
+            <button type="button" class="btn btn-ghost">刷新列表</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot"></span>字段配置详情</h3>
+          <p class="hint info">提示：双击行可快速加入监控配置；右键菜单可复制字段信息（网页版用行操作按钮替代亦可）。</p>
+          <div class="table-wrap">
+            <table class="mock-table">
+              <thead>
+                <tr>
+                  <th>字段名</th>
+                  <th>属性名称</th>
+                  <th>描述</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>power</code></td>
+                  <td>power_state</td>
+                  <td>设备上电状态，0 关机 / 1 开机</td>
+                </tr>
+                <tr>
+                  <td><code>status</code></td>
+                  <td>run_status</td>
+                  <td>运行状态枚举</td>
+                </tr>
+                <tr>
+                  <td><code>temperature</code></td>
+                  <td>sensor_temp</td>
+                  <td>摄氏度，整数</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 子 Tab 3：字段监控配置 -->
+      <div id="emq-monitor" class="sub-panel" role="tabpanel" hidden>
+        <div class="grid-2">
+          <div class="card" style="margin-bottom:0;">
+            <h3 class="card-title"><span class="dot"></span>设备型号</h3>
+            <div class="row">
+              <label>型号</label>
+              <select class="grow"><option>与 Tab1 联动</option></select>
+            </div>
+            <button type="button" class="btn btn-primary" style="margin-top:8px;">加载配置</button>
+          </div>
+          <div class="card" style="margin-bottom:0;">
+            <h3 class="card-title"><span class="dot"></span>设备信息</h3>
+            <div class="row">
+              <label for="mock-sn">设备 SN</label>
+              <input id="mock-sn" class="grow" type="text" value="1903038208387133441-c9748ba875db45e9%3A001%3A0000000000w" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title"><span class="dot"></span>字段管理</h3>
+          <div class="row">
+            <label for="mock-field">影子字段</label>
+            <input id="mock-field" class="grow" type="text" placeholder="输入 reported 下的字段名" />
+            <button type="button" class="btn btn-primary">添加字段</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title"><span class="dot"></span>字段配置</h3>
+          <p class="hint">表格列与桌面版 Treeview 一致：字段名 · 字段说明 · 预期值 · 是否对比 · 当前值 · 状态</p>
+          <div class="table-wrap">
+            <table class="mock-table">
+              <thead>
+                <tr>
+                  <th>字段名</th>
+                  <th>字段说明</th>
+                  <th>预期值</th>
+                  <th>对比预期值</th>
+                  <th>当前值</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>power</code></td>
+                  <td>上电状态</td>
+                  <td>1</td>
+                  <td>是</td>
+                  <td>1</td>
+                  <td><span class="pill">匹配</span></td>
+                </tr>
+                <tr>
+                  <td><code>status</code></td>
+                  <td>运行状态</td>
+                  <td>idle</td>
+                  <td>否</td>
+                  <td>running</td>
+                  <td><span class="pill">—</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="toolbar">
+            <button type="button" class="btn btn-ghost">编辑字段</button>
+            <button type="button" class="btn btn-ghost">移除字段</button>
+            <button type="button" class="btn btn-ghost">清空所有字段</button>
+            <button type="button" class="btn btn-primary">获取可用字段信息</button>
+            <button type="button" class="btn btn-primary">查询完整影子</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title"><span class="dot"></span>监控控制</h3>
+          <div class="toolbar" style="margin-top:0;">
+            <button type="button" class="btn btn-primary">开始监控</button>
+            <button type="button" class="btn btn-ghost" disabled>停止监控</button>
+            <label style="min-width:auto; display:flex; align-items:center; gap:8px;">
+              监控间隔(s)
+              <input type="text" value="5" style="width:72px;" />
+            </label>
+            <button type="button" class="btn btn-primary">保存配置</button>
+            <button type="button" class="btn btn-ghost">重新加载</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title"><span class="dot"></span>监控结果</h3>
+          <div class="row" style="justify-content: flex-end; margin-bottom: 8px;">
+            <button type="button" class="btn btn-ghost">清空日志</button>
+          </div>
+          <textarea class="mock-log" readonly style="min-height:180px;">[设计占位] 轮询 API 后的多字段结果、时间戳、匹配/不匹配提示（彩色日志可在实现时用带 class 的 div 列表）。</textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var siteTabs = document.querySelectorAll(".site-tab");
+      var views = document.querySelectorAll(".page-view");
+      siteTabs.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var id = btn.getAttribute("data-view");
+          siteTabs.forEach(function (b) { b.setAttribute("aria-selected", b === btn ? "true" : "false"); });
+          views.forEach(function (v) {
+            var on = v.id === id;
+            v.classList.toggle("active", on);
+            v.hidden = !on;
+          });
+        });
+      });
+
+      var subTabs = document.querySelectorAll(".sub-tab");
+      var panels = document.querySelectorAll(".sub-panel");
+      subTabs.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var sid = btn.getAttribute("data-sub");
+          subTabs.forEach(function (b) { b.setAttribute("aria-selected", b === btn ? "true" : "false"); });
+          panels.forEach(function (p) {
+            var on = p.id === sid;
+            p.classList.toggle("active", on);
+            p.hidden = !on;
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

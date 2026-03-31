@@ -11,6 +11,8 @@ import {
   resetFindHighlights
 } from './jsonTree.js'
 import { registerSW } from 'virtual:pwa-register'
+import { ensureManropeLoaded, processLongestFontXlsx, MSG_NO_CC } from './longestXlsx.js'
+import { initEmqTool } from './emqApp.js'
 
 registerSW({ immediate: true })
 
@@ -713,3 +715,143 @@ document.getElementById('radix-convert').addEventListener('click', () => {
   radixResults.innerHTML = `二进制：<strong>0b${bin}</strong><br />十进制：<strong>${dec}</strong><br />十六进制：<strong>0x${hex}</strong>`
   radixResults.classList.remove('err', 'muted')
 })
+
+/* —— 最长文案 xlsx —— */
+const LONGEST_MAX_MB = 40
+const longestInput = document.getElementById('longest-xlsx-input')
+const longestDrop = document.getElementById('longest-xlsx-drop')
+const longestPick = document.getElementById('longest-xlsx-pick')
+const longestRun = document.getElementById('longest-xlsx-run')
+const longestDownload = document.getElementById('longest-xlsx-download')
+const longestClear = document.getElementById('longest-xlsx-clear')
+const longestLog = document.getElementById('longest-xlsx-log')
+const longestMeta = document.getElementById('longest-xlsx-filemeta')
+
+let longestFile = null
+let longestOutBytes = null
+let longestOutName = ''
+
+function setLongestLog(text) {
+  longestLog.value = text
+}
+
+function setLongestFile(file) {
+  longestOutBytes = null
+  longestOutName = ''
+  longestDownload.disabled = true
+  if (!file) {
+    longestFile = null
+    longestRun.disabled = true
+    longestMeta.textContent = '未选择文件'
+    return
+  }
+  const maxB = LONGEST_MAX_MB * 1024 * 1024
+  if (file.size > maxB) {
+    longestFile = null
+    longestRun.disabled = true
+    longestMeta.textContent = `文件超过 ${LONGEST_MAX_MB} MB，请换较小的 xlsx`
+    showToast(`单文件不能超过 ${LONGEST_MAX_MB} MB`)
+    return
+  }
+  longestFile = file
+  const mb = (file.size / (1024 * 1024)).toFixed(2)
+  longestMeta.textContent = `已选：${file.name}（${mb} MB）`
+  longestRun.disabled = false
+}
+
+longestPick.addEventListener('click', () => longestInput.click())
+longestInput.addEventListener('change', () => {
+  const f = longestInput.files?.[0]
+  if (f) setLongestFile(f)
+  longestInput.value = ''
+})
+
+;['dragenter', 'dragover'].forEach((ev) => {
+  longestDrop.addEventListener(ev, (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    longestDrop.classList.add('dragover')
+  })
+})
+;['dragleave', 'drop'].forEach((ev) => {
+  longestDrop.addEventListener(ev, (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    longestDrop.classList.remove('dragover')
+  })
+})
+longestDrop.addEventListener('drop', (e) => {
+  const f = e.dataTransfer?.files?.[0]
+  if (f && /\.(xlsx|xls)$/i.test(f.name)) setLongestFile(f)
+  else if (f) showToast('请上传 .xlsx 或 .xls')
+})
+longestDrop.addEventListener('click', () => longestInput.click())
+longestDrop.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault()
+    longestInput.click()
+  }
+})
+
+longestClear.addEventListener('click', () => {
+  setLongestFile(null)
+  setLongestLog('')
+})
+
+longestRun.addEventListener('click', async () => {
+  if (!longestFile) return
+  const maxB = LONGEST_MAX_MB * 1024 * 1024
+  if (longestFile.size > maxB) {
+    showToast(`文件超过 ${LONGEST_MAX_MB} MB`)
+    return
+  }
+  longestRun.disabled = true
+  longestDownload.disabled = true
+  setLongestLog('正在加载字体与分析，请稍候…')
+  try {
+    await ensureManropeLoaded(import.meta.env.BASE_URL)
+    const ab = await longestFile.arrayBuffer()
+    const { outBytes, downloadName, stats, lines } = await processLongestFontXlsx(ab, longestFile.name)
+    longestOutBytes = outBytes
+    longestOutName = downloadName
+    longestDownload.disabled = false
+    const tail = [
+      '—',
+      `完成：处理 ${stats.processed} 行，跳过 ${stats.skipped} 行。`,
+      stats.langStats && Object.keys(stats.langStats).length
+        ? `各语言「最宽」次数：` +
+          Object.entries(stats.langStats)
+            .sort((a, b) => b[1] - a[1])
+            .map(([k, v]) => `${k}:${v}`)
+            .join(' · ')
+        : ''
+    ]
+    setLongestLog([...lines, ...tail].filter(Boolean).join('\n'))
+    showToast('分析完成，可下载结果')
+  } catch (e) {
+    const msg = e.message || String(e)
+    setLongestLog(`错误：${msg}`)
+    if (msg.includes(MSG_NO_CC) || msg === MSG_NO_CC) {
+      showToast(MSG_NO_CC)
+    } else {
+      showToast('处理失败，见日志')
+    }
+  } finally {
+    longestRun.disabled = false
+  }
+})
+
+longestDownload.addEventListener('click', () => {
+  if (!longestOutBytes?.length) return
+  const blob = new Blob([longestOutBytes], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  })
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = longestOutName || 'result.xlsx'
+  a.click()
+  URL.revokeObjectURL(a.href)
+  showToast('已开始下载')
+})
+
+initEmqTool({ showToast, copyText })

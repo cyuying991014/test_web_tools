@@ -3,6 +3,15 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   base: './',
+  server: {
+    proxy: {
+      '/api/emq-shadow': {
+        target: 'http://10.10.20.183:32045',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/emq-shadow/, '') || '/'
+      }
+    }
+  },
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
@@ -19,7 +28,7 @@ export default defineConfig({
         lang: 'zh-CN'
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,ttf}']
       }
     })
   ]
