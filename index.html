@@ -3,15 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="测试常用工具聚合：MD5、JSON、时间与时间戳、进制转换、文本比较、颜色，纯浏览器端处理" />
+  <meta name="description" content="测试常用工具聚合：MD5、JSON、最长文案、时间与时间戳、进制转换、文本比较、颜色，纯浏览器端处理" />
   <title>测试工具箱</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script type="module" crossorigin src="./assets/index-BUQlro2p.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-Dhn7Tw_Z.css">
+  <script type="module" crossorigin src="./assets/index-L93L66S3.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-f9QkNUco.css">
 <link rel="manifest" href="./manifest.webmanifest"></head>
 <body>
+  <header class="site-top">
+    <div class="site-top-inner">
+      <div class="site-top-brand">
+        <span class="site-top-title">测试工具聚合</span>
+        <span class="site-top-tagline">测试工具箱 · 设备影子</span>
+      </div>
+      <div class="site-top-tabs" role="tablist" aria-label="站点页面">
+        <button type="button" class="site-top-tab" data-site-view="toolkit" aria-selected="true" title="MD5、JSON、时间戳、进制、文本比较、颜色等，均在浏览器本地处理">常用测试工具</button>
+        <button type="button" class="site-top-tab" data-site-view="emq" aria-selected="false" title="通过代理请求设备影子接口，配置型号与字段并轮询监控">EMQ 设备影子</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="page-toolkit">
   <div class="app">
     <aside class="sidebar" aria-label="工具分类导航">
       <div class="brand">
@@ -20,6 +34,12 @@
         <span class="badge">纯前端 · 可离线</span>
       </div>
       <nav class="nav-groups" aria-label="分类">
+        <div class="nav-group">
+          <p class="nav-group-title">APP 测试</p>
+          <ul>
+            <li><a href="#sec-longest-xlsx">最长文案</a></li>
+          </ul>
+        </div>
         <div class="nav-group">
           <p class="nav-group-title">编码与校验</p>
           <ul>
@@ -46,6 +66,36 @@
     </aside>
 
     <main class="main">
+      <p class="hint" style="margin-top: 0; margin-bottom: 20px;">
+        左侧导航可快速跳转到各工具。本页所有处理均在<strong>当前浏览器本地</strong>完成，数据不上传至本站服务器（离线打开后亦可使用已缓存的页面能力）。
+      </p>
+      <section class="section section-tab-page" id="sec-longest-xlsx" aria-labelledby="h-longest-xlsx">
+        <div class="section-head">
+          <h2 id="h-longest-xlsx">最长文案</h2>
+          <span>单文件 ≤ 40 MB · 上传 xlsx · 下载结果</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>上传与处理</h3>
+          <p class="hint">
+            处理<strong>首个工作表</strong>：使用 <strong>Manrope 14px</strong> 在 Canvas 上测量排版宽度；从 <strong>en</strong> 列起扫描各语言列，将最宽文案写入 <strong>cc</strong>；删除 <code>key = addition_like_1</code> 的整行。表头须含 <strong>cc</strong> 列（IoT 国际化语种管理）。大表可能较慢。
+          </p>
+          <p class="hint" style="margin-top: -6px;">操作建议：<strong>选择文件</strong> → <strong>开始分析</strong>（完成后）→ <strong>下载结果 xlsx</strong>。「清空」会清除已选文件与日志。</p>
+          <input type="file" id="longest-xlsx-input" accept=".xlsx,.xls" hidden />
+          <div class="dropzone" id="longest-xlsx-drop" role="button" tabindex="0" aria-label="拖拽 Excel 到此处或点击选择">
+            将 <strong>.xlsx</strong> 拖到此处，或点击下方选择（不上传服务器，<strong>单文件 ≤ 40 MB</strong>）
+          </div>
+          <div class="row" style="margin-top: 12px;">
+            <button type="button" class="btn btn-primary" id="longest-xlsx-pick">选择文件</button>
+            <button type="button" class="btn btn-primary" id="longest-xlsx-run" disabled>开始分析</button>
+            <button type="button" class="btn btn-ghost" id="longest-xlsx-download" disabled>下载结果 xlsx</button>
+            <button type="button" class="btn btn-ghost" id="longest-xlsx-clear">清空</button>
+          </div>
+          <p class="hint" id="longest-xlsx-filemeta" style="margin-top: 10px;">未选择文件</p>
+          <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-top:14px;" for="longest-xlsx-log">运行日志</label>
+          <textarea id="longest-xlsx-log" class="longest-xlsx-log" readonly rows="10" placeholder="处理过程将显示在这里…"></textarea>
+        </div>
+      </section>
+
       <section class="section" id="sec-md5-file" aria-labelledby="h-md5-file">
         <div class="section-head">
           <h2 id="h-md5-file">文件 MD5</h2>
@@ -58,6 +108,7 @@
           <div class="dropzone" id="md5-file-drop" role="button" tabindex="0" aria-label="拖拽文件到此处或点击选择">
             将文件 <strong>拖拽到此处</strong>，或点击下方选择文件
           </div>
+          <p class="hint" style="margin-top: -4px;">请先<strong>选择或拖入文件</strong>，浏览器在本地读完即可显示 MD5；无需也不会上传服务器。「复制结果」在算出摘要后可用。</p>
           <div class="row">
             <button type="button" class="btn btn-primary" id="md5-file-pick">选择文件</button>
             <button type="button" class="btn btn-ghost" id="md5-file-clear">清空</button>
@@ -76,6 +127,7 @@
         </div>
         <div class="card">
           <h3 class="card-title"><span class="dot" aria-hidden="true"></span>输入文本</h3>
+          <p class="hint">对框内全部内容按 <strong>UTF-8</strong> 计算 MD5。输入或粘贴后请点击<strong>计算 MD5</strong>，结果出现在下方，可用「复制结果」。</p>
           <textarea id="md5-text-input" placeholder="在此粘贴或输入文本…" rows="5"></textarea>
           <div class="row" style="margin-top: 12px;">
             <button type="button" class="btn btn-primary" id="md5-text-calc">计算 MD5</button>
@@ -94,6 +146,7 @@
         </div>
         <div class="card">
           <h3 class="card-title"><span class="dot" aria-hidden="true"></span>原始 JSON</h3>
+          <p class="hint">粘贴 JSON 后点<strong>格式化</strong>：若语法正确，下方会出现<strong>可折叠树</strong>，并显示查找/替换与展开工具；若报错，请根据红字提示修正后再试。</p>
           <textarea id="json-input" placeholder='例如：{"a":1,"b":[2,3]}' rows="6"></textarea>
           <div class="row" style="margin-top: 12px;">
             <button type="button" class="btn btn-primary" id="json-format">格式化</button>
@@ -133,7 +186,7 @@
         </div>
         <div class="card">
           <h3 class="card-title"><span class="dot" aria-hidden="true"></span>Unix 时间戳 → 可读时间</h3>
-          <p class="hint">下方「秒 / 毫秒」表示你如何理解输入的数字；结果为浏览器<strong>本地时区</strong>下的日期时间。</p>
+          <p class="hint">在输入框粘贴数字后，选择该数字表示<strong>秒</strong>还是<strong>毫秒</strong>，再点<strong>转换</strong>。结果为当前浏览器<strong>本地时区</strong>下的日期时间（非固定某一时区）。</p>
           <div class="row">
             <input class="single" type="text" id="ts-input" placeholder="例如 1700000000 或 1700000000000" style="max-width: 320px;" />
           </div>
@@ -203,6 +256,10 @@
         </div>
         <div class="card">
           <h3 class="card-title"><span class="dot" aria-hidden="true"></span>比较模式</h3>
+          <p class="hint">
+            <strong>纯文本</strong>：按文本差异高亮（适合日志、配置片段）。<strong>JSON</strong>：按解析后的结构比较；<strong>严格</strong>要求键与数组顺序一致，<strong>非严格</strong>忽略对象键顺序，数组按「 multiset 」比较（同元素可换序）。
+            在左右文本框填好内容后点<strong>开始比较</strong>，结果在下方展示。
+          </p>
           <div class="row">
             <label class="choice"><input type="radio" name="cmp-mode" id="cmp-mode-plain" value="plain" checked /> 纯文本</label>
             <label class="choice"><input type="radio" name="cmp-mode" id="cmp-mode-json" value="json" /> JSON</label>
@@ -283,6 +340,181 @@
 
       <p class="footer-note">所有数据仅在本地浏览器处理；首次联网打开后可配合 Service Worker 离线使用。</p>
     </main>
+  </div>
+  </div>
+
+  <div id="page-emq" class="page-emq" hidden>
+    <div class="emq-inner">
+      <div class="emq-page-head">
+        <h2 class="emq-title">设备影子信息获取工具</h2>
+        <p class="emq-subtitle">多字段监控 · 型号与字段配置</p>
+      </div>
+
+      <div class="emq-sub-tabs" role="tablist" aria-label="EMQ 分区">
+        <button type="button" class="emq-sub-tab" data-emq-sub="fetch" aria-selected="true">获取设备字段</button>
+        <button type="button" class="emq-sub-tab" data-emq-sub="preview" aria-selected="false">已保存配置预览</button>
+        <button type="button" class="emq-sub-tab" data-emq-sub="monitor" aria-selected="false">字段监控配置</button>
+      </div>
+
+      <div id="emq-panel-fetch" class="emq-sub-panel active" role="tabpanel">
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>连接与型号</h3>
+          <p class="hint emq-hint-compact">
+            填写 <strong>文档 URL</strong> 后点<strong>加载字段说明</strong>，会获取网页中的协议字段在下方的【获取信息预览】中。参考 url 链接：<code>http://iot.pages-gitlab.dreo-cloud.com/doc/iot_docs/产品列表/DR-HHM005S/index.html</code>
+          </p>
+          <input type="hidden" id="emq-region" value="ap-east-1" />
+          <div class="row emq-field-row">
+            <label for="emq-doc-url">文档 URL</label>
+            <input class="single emq-input-grow" type="text" id="emq-doc-url" placeholder="Sphinx 文档入口页" autocomplete="off" />
+            <button type="button" class="btn btn-primary" id="emq-load-doc">加载字段说明</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="emq-card-head-row">
+            <h3 class="card-title emq-card-head-title"><span class="dot" aria-hidden="true"></span>获取信息预览</h3>
+            <div class="row" style="margin-bottom: 0;">
+              <input class="single" type="text" id="emq-doc-preview-model" placeholder="保存时填写设备型号名（可从 URL 自动提取）" style="width: 220px;" />
+              <button type="button" class="btn btn-primary" id="emq-save-preview-model">保存配置</button>
+            </div>
+          </div>
+          <p class="hint emq-hint-compact">点击「加载字段说明」后，解析得到的字段会展示在下表。若暂无数据，会显示提示语。</p>
+          <div class="emq-table-wrap emq-doc-preview-wrap">
+            <table class="emq-table">
+              <thead>
+                <tr><th>字段名</th><th>属性名称</th><th>描述</th></tr>
+              </thead>
+              <tbody id="emq-doc-preview-tbody">
+                <tr><td colspan="3" class="emq-empty-cell">暂无字段预览数据，请先点击「加载字段说明」</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card emq-fetch-log-card">
+          <div class="emq-card-head-row">
+            <h3 class="card-title emq-card-head-title"><span class="dot" aria-hidden="true"></span>加载日志</h3>
+            <button type="button" class="btn btn-ghost" id="emq-clear-fetch-log">清空日志</button>
+          </div>
+          <div id="emq-fetch-log" class="emq-log" aria-live="polite">
+            <div class="emq-log-placeholder">暂未加载任何日志。可执行「加载字段说明」、导入型号配置，或在「已保存配置预览」中切换型号，相关记录将显示在此。</div>
+          </div>
+        </div>
+        <div class="card emq-io-card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>型号配置导入 / 导出</h3>
+          <p class="hint emq-hint-compact">导出得到 <code>device_models_config.json</code>，包含所有已保存型号；在另一台机器或清空浏览器数据后，可用<strong>导入 JSON</strong> 恢复。导入会<strong>覆盖</strong>当前页内存中的型号列表，请先自行备份再导入。</p>
+          <div class="row">
+            <button type="button" class="btn btn-ghost" id="emq-export-models">导出 device_models_config.json</button>
+            <button type="button" class="btn btn-ghost" id="emq-import-models">导入 JSON</button>
+            <input type="file" id="emq-import-models-file" accept=".json,application/json" hidden />
+          </div>
+        </div>
+      </div>
+
+      <div id="emq-panel-preview" class="emq-sub-panel" role="tabpanel" hidden>
+        <p class="hint info emq-hint-compact" style="margin-bottom: 14px;">上方展示已保存型号列表；<strong>双击型号行</strong>可在下方查看该型号字段配置。每个型号可单独删除，删除前会弹窗二次确认。</p>
+        <div class="card">
+          <div class="emq-card-head-row">
+            <h3 class="card-title emq-card-head-title"><span class="dot" aria-hidden="true"></span>已保存型号列表</h3>
+            <button type="button" class="btn btn-ghost" id="emq-preview-refresh">刷新列表</button>
+          </div>
+          <div class="emq-table-wrap emq-model-list-scroll">
+            <table class="emq-table emq-model-list-table">
+              <thead>
+                <tr><th>型号</th><th>字段数</th><th>操作</th></tr>
+              </thead>
+              <tbody id="emq-model-list-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>字段配置详情</h3>
+          <p class="hint info emq-hint-compact">当前查看型号：<span id="emq-preview-active-model">未选择</span>。双击下方字段行可添加到「字段监控配置」的字段列表。</p>
+          <div class="emq-table-wrap">
+            <table class="emq-table emq-preview-table">
+              <thead>
+                <tr><th>字段名</th><th>属性名称</th><th>描述</th></tr>
+              </thead>
+              <tbody id="emq-preview-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="emq-panel-monitor" class="emq-sub-panel" role="tabpanel" hidden>
+        <p class="hint emq-hint-compact" style="margin-bottom: 14px;">
+          建议顺序：选择型号并<strong>加载配置</strong> → 填写<strong>设备 SN</strong> → 在字段表中维护要监控的 key（与 reported 一致）→ 使用<strong>获取可用字段信息</strong>核对接口里是否包含这些 key → 在<strong>监控控制</strong>中设置间隔后<strong>开始监控</strong>。轮询与请求日志在下方「监控结果」。
+        </p>
+        <div class="emq-two-col">
+          <div class="card">
+            <h3 class="card-title"><span class="dot" aria-hidden="true"></span>设备型号</h3>
+            <div class="row emq-field-row emq-tab3-model-row">
+              <label for="emq-tab3-model">型号</label>
+              <div class="select-wrap emq-select-wrap emq-select-wrap-tab3">
+                <select id="emq-tab3-model" class="app-select emq-select" aria-label="监控页型号">
+                  <option value="">请选择型号</option>
+                </select>
+                <span class="select-chevron emq-select-chevron" aria-hidden="true"></span>
+              </div>
+              <button type="button" class="btn btn-primary" id="emq-load-model-full">加载配置</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="card-title"><span class="dot" aria-hidden="true"></span>设备信息</h3>
+            <p class="hint emq-hint-compact">设备 SN 须与影子接口要求的 <code>deviceSn</code> 完全一致（可从设备或后台复制）。获取字段、查询影子与监控轮询都会使用该 SN。</p>
+            <div class="row emq-field-row">
+              <label for="emq-device-sn">设备 SN</label>
+              <input class="single emq-input-grow" type="text" id="emq-device-sn" placeholder="例：1972911172935020545-6e0818b5ac7d3877:001:0000000000b" autocomplete="off" />
+            </div>
+          </div>
+        </div>
+        <div class="card emq-field-config-card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>字段配置</h3>
+          <div class="emq-subcard">
+            <p class="hint emq-hint-compact">双击表格行可快速移除该字段；单击选中一行后可使用「移除字段」按钮。</p>
+            <div class="emq-table-wrap emq-table-scroll">
+              <table class="emq-table">
+                <thead>
+                  <tr><th>字段名</th><th>字段说明</th><th>当前值</th><th>状态</th></tr>
+                </thead>
+                <tbody id="emq-field-tbody"></tbody>
+              </table>
+            </div>
+            <div class="emq-field-config-actions">
+              <div class="emq-field-config-actions-left">
+                <button type="button" class="btn btn-ghost" id="emq-remove-field">移除字段</button>
+                <button type="button" class="btn btn-ghost" id="emq-clear-fields">清空所有字段</button>
+              </div>
+              <div class="emq-field-config-actions-right">
+                <button type="button" class="btn btn-primary" id="emq-query-shadow" title="拉取整份影子 JSON 并写入下方监控日志，同时尝试更新表中各字段当前值">查询完整影子</button>
+                <button type="button" class="btn btn-primary" id="emq-get-fields" title="列出接口返回的 reported 下所有 key，并刷新表中已配置字段的值">获取可用字段信息</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>监控控制</h3>
+          <p class="hint emq-hint-compact">
+            须已添加至少一个字段并填写设备 SN。<strong>开始监控</strong>后按「监控间隔」秒数重复请求影子并刷新字段值与日志；<strong>停止监控</strong>结束轮询。
+            <strong>保存配置</strong> / <strong>重新加载</strong>：将当前 SN、间隔、字段列表等存到本机浏览器（localStorage），刷新页面后仍可用「重新加载」读回。
+          </p>
+          <div class="row emq-field-row emq-monitor-control-row">
+            <button type="button" class="btn btn-primary" id="emq-start-monitor">开始监控</button>
+            <button type="button" class="btn btn-ghost" id="emq-stop-monitor" disabled>停止监控</button>
+            <label class="emq-inline-label emq-interval-label"><span class="emq-interval-label-text">监控间隔(s)</span><input type="text" id="emq-interval" class="single emq-interval-input" value="5" /></label>
+            <button type="button" class="btn btn-primary" id="emq-save-session">保存配置</button>
+            <button type="button" class="btn btn-ghost" id="emq-reload-session">重新加载</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>监控结果</h3>
+          <div class="row" style="justify-content:flex-end;margin-bottom:8px;">
+            <button type="button" class="btn btn-ghost" id="emq-clear-monitor-log">清空日志</button>
+          </div>
+          <div id="emq-monitor-log" class="emq-log" aria-live="polite">
+            <div class="emq-log-placeholder">暂无监控日志。获取可用字段、查询完整影子或开始监控后，记录将显示在此。</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="toast" id="toast" role="status"></div>
