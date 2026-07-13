@@ -50,6 +50,7 @@
           <p class="nav-group-title">格式与时间</p>
           <ul>
             <li><a href="#sec-json">JSON 格式化</a></li>
+            <li><a href="#sec-url">URL 解析</a></li>
             <li><a href="#sec-time">时间戳转换</a></li>
           </ul>
         </div>
@@ -173,6 +174,54 @@
           </div>
           <div class="json-tree" id="json-tree" aria-label="JSON 树状视图">
             <p class="json-tree-placeholder">请先点击「格式化」生成可折叠树状视图</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-url" aria-labelledby="h-url">
+        <div class="section-head">
+          <h2 id="h-url">URL 解析</h2>
+          <span>拆分域名、路径与查询参数</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>输入 URL</h3>
+          <p class="hint">粘贴完整 URL 后点击<strong>解析 URL</strong>。工具会拆出协议、域名、端口、路径段和查询参数；查询参数会同时保留原始值与 decode 后的值，时间戳类参数会额外显示可读时间。</p>
+          <textarea id="url-input" rows="4" placeholder="例如：https://app-api-fat.dreo.com:8020/api/device-report/1929721128921149442/temperature/statistics?tz=Europe%2FParis&start=1783048594723&end=1783893600000"></textarea>
+          <div class="row" style="margin-top: 12px;">
+            <button type="button" class="btn btn-primary" id="url-parse">解析 URL</button>
+            <button type="button" class="btn btn-ghost" id="url-copy-json">复制 JSON</button>
+            <button type="button" class="btn btn-ghost" id="url-clear">清空</button>
+          </div>
+          <div class="output muted" id="url-summary-wrap" style="margin-top: 12px;">
+            <span class="output-text" id="url-summary">解析结果将显示在这里</span>
+          </div>
+          <div class="url-result-grid">
+            <div>
+              <span class="compare-result-label">路径段</span>
+              <div class="url-table-wrap">
+                <table class="url-table">
+                  <thead>
+                    <tr><th>#</th><th>内容</th></tr>
+                  </thead>
+                  <tbody id="url-path-body">
+                    <tr><td colspan="2" class="url-empty-cell">请先解析 URL</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div>
+              <span class="compare-result-label">查询参数</span>
+              <div class="url-table-wrap">
+                <table class="url-table">
+                  <thead>
+                    <tr><th>参数名</th><th>解码值</th><th>原始值</th><th>时间</th></tr>
+                  </thead>
+                  <tbody id="url-params-body">
+                    <tr><td colspan="4" class="url-empty-cell">请先解析 URL</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </section>

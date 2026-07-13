@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// 本地 dev / 普通 build 用相对路径；部署到 GitHub Pages 项目页（…github.io/<仓库名>/）请用
+// npm run build:pages（在 package.json 里把 --base=/仓库名/ 改成与远程仓库名一致）
 export default defineConfig({
   base: './',
   server: {

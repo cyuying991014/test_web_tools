@@ -13,6 +13,7 @@ import {
 import { registerSW } from 'virtual:pwa-register'
 import { ensureManropeLoaded, processLongestFontXlsx, MSG_NO_CC } from './longestXlsx.js'
 import { initEmqTool } from './emqApp.js'
+import { parseUrlDetails } from './urlParser.js'
 
 registerSW({ immediate: true })
 
@@ -384,6 +385,70 @@ document.getElementById('json-copy').addEventListener('click', () => {
   }
   copyText(JSON.stringify(jsonParsedData, null, 2))
 })
+
+/* —— URL 解析 —— */
+const urlInput = document.getElementById('url-input')
+const urlSummary = document.getElementById('url-summary')
+const urlSummaryWrap = document.getElementById('url-summary-wrap')
+const urlParamsBody = document.getElementById('url-params-body')
+const urlPathBody = document.getElementById('url-path-body')
+let lastUrlParseJson = ''
+
+function setUrlParseError(message) {
+  lastUrlParseJson = ''
+  urlSummary.textContent = message
+  urlSummaryWrap.classList.add('err')
+  urlSummaryWrap.classList.remove('muted')
+  urlPathBody.innerHTML = '<tr><td colspan="2" class="url-empty-cell">URL 解析失败</td></tr>'
+  urlParamsBody.innerHTML = '<tr><td colspan="4" class="url-empty-cell">URL 解析失败</td></tr>'
+}
+
+function renderUrlRows(parsed) {
+  urlPathBody.innerHTML = parsed.pathSegments.length
+    ? parsed.pathSegments
+        .map((segment, index) => `<tr><td>${index + 1}</td><td>${escapeHtml(segment)}</td></tr>`)
+        .join('')
+    : '<tr><td colspan="2" class="url-empty-cell">无路径段</td></tr>'
+
+  urlParamsBody.innerHTML = parsed.queryEntries.length
+    ? parsed.queryEntries
+        .map((entry) => {
+          const timeCell = entry.timeText || '<span class="muted-inline">-</span>'
+          return `<tr><td>${escapeHtml(entry.key)}</td><td>${escapeHtml(entry.value)}</td><td>${escapeHtml(entry.rawValue)}</td><td>${timeCell}</td></tr>`
+        })
+        .join('')
+    : '<tr><td colspan="4" class="url-empty-cell">无查询参数</td></tr>'
+}
+
+document.getElementById('url-parse').addEventListener('click', () => {
+  try {
+    const parsed = parseUrlDetails(urlInput.value)
+    lastUrlParseJson = JSON.stringify(parsed, null, 2)
+    urlSummary.innerHTML = [
+      `协议：<strong>${escapeHtml(parsed.protocol)}</strong>`,
+      `域名：<strong>${escapeHtml(parsed.hostname)}</strong>`,
+      `端口：<strong>${escapeHtml(parsed.port)}</strong>`,
+      `路径：<strong>${escapeHtml(parsed.pathname || '/')}</strong>`,
+      `参数：<strong>${parsed.queryEntries.length}</strong> 个`
+    ].join('<br />')
+    urlSummaryWrap.classList.remove('muted', 'err')
+    renderUrlRows(parsed)
+  } catch (e) {
+    setUrlParseError(e.message || 'URL 解析失败')
+  }
+})
+
+document.getElementById('url-clear').addEventListener('click', () => {
+  urlInput.value = ''
+  lastUrlParseJson = ''
+  urlSummary.textContent = '解析结果将显示在这里'
+  urlSummaryWrap.classList.add('muted')
+  urlSummaryWrap.classList.remove('err')
+  urlPathBody.innerHTML = '<tr><td colspan="2" class="url-empty-cell">请先解析 URL</td></tr>'
+  urlParamsBody.innerHTML = '<tr><td colspan="4" class="url-empty-cell">请先解析 URL</td></tr>'
+})
+
+document.getElementById('url-copy-json').addEventListener('click', () => copyText(lastUrlParseJson))
 
 /* —— 时间戳 ↔ 时间 —— */
 const tsInput = document.getElementById('ts-input')

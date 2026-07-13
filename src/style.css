@@ -659,6 +659,67 @@ label.choice {
   font-style: italic;
 }
 
+.url-result-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.75fr) minmax(320px, 1.25fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+@media (max-width: 760px) {
+  .url-result-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.url-table-wrap {
+  overflow: auto;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.url-table {
+  width: 100%;
+  min-width: 360px;
+  border-collapse: collapse;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 12px;
+  color: var(--slate-800);
+}
+
+.url-table th,
+.url-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: left;
+  vertical-align: top;
+  word-break: break-all;
+}
+
+.url-table th {
+  background: #f8fafc;
+  color: var(--slate-600);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.url-table tr:last-child td {
+  border-bottom: none;
+}
+
+.url-empty-cell {
+  color: #94a3b8;
+  font-style: italic;
+  text-align: center !important;
+  font-family: "Noto Sans SC", system-ui, sans-serif;
+}
+
+.url-table .muted-inline {
+  color: #94a3b8;
+  font-style: italic;
+}
+
 /* JSON 树 */
 .json-toolbar {
   padding: 12px 14px;

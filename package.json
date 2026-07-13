@@ -4,12 +4,14 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "deploy": "gh-pages -d dist",
+    "deploy": "npm run build:pages && gh-pages -d dist",
     "dev": "vite",
     "build": "vite build",
+    "build:pages": "vite build --base=/test_web_tools/",
     "preview": "vite preview",
     "test:json-find": "node scripts/verify-json-find.mjs",
-    "test:json-replace": "node scripts/verify-json-replace.mjs"
+    "test:json-replace": "node scripts/verify-json-replace.mjs",
+    "test:url-parser": "node scripts/verify-url-parser.mjs"
   },
   "dependencies": {
     "diff": "^7.0.0",
