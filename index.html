@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="测试常用工具聚合：MD5、JSON、最长文案、时间与时间戳、进制转换、文本比较、颜色，纯浏览器端处理" />
+  <meta name="description" content="测试工具聚合：JSON、URL、Cron、正则、时间、文本比较与测试数据生成，纯浏览器端处理" />
   <title>测试工具箱</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,11 +14,11 @@
     <div class="site-top-inner">
       <div class="site-top-brand">
         <span class="site-top-title">测试工具聚合</span>
-        <span class="site-top-tagline">测试工具箱 · 设备影子</span>
+        <span class="site-top-tagline">测试工具箱</span>
       </div>
       <div class="site-top-tabs" role="tablist" aria-label="站点页面">
         <button type="button" class="site-top-tab" data-site-view="toolkit" aria-selected="true" title="MD5、JSON、时间戳、进制、文本比较、颜色等，均在浏览器本地处理">常用测试工具</button>
-        <button type="button" class="site-top-tab" data-site-view="emq" aria-selected="false" title="通过代理请求设备影子接口，配置型号与字段并轮询监控">EMQ 设备影子</button>
+        <button type="button" class="site-top-tab" data-site-view="data-generator" aria-selected="false" title="生成单字段或组合测试数据，支持批量导出">测试数据生成</button>
       </div>
     </div>
   </header>
@@ -33,14 +33,9 @@
       </div>
       <nav class="nav-groups" aria-label="分类">
         <div class="nav-group">
-          <p class="nav-group-title">APP 测试</p>
-          <ul>
-            <li><a href="#sec-longest-xlsx">最长文案</a></li>
-          </ul>
-        </div>
-        <div class="nav-group">
           <p class="nav-group-title">编码与校验</p>
           <ul>
+            <li><a href="#sec-activation-code">charles激活码生成</a></li>
             <li><a href="#sec-md5-file">文件 MD5</a></li>
             <li><a href="#sec-md5-text">文本 MD5</a></li>
             <li><a href="#sec-radix">进制转换</a></li>
@@ -51,6 +46,8 @@
           <ul>
             <li><a href="#sec-json">JSON 格式化</a></li>
             <li><a href="#sec-url">URL 解析</a></li>
+            <li><a href="#sec-regex">正则表达式调试器</a></li>
+            <li><a href="#sec-cron">Cron 表达式计算</a></li>
             <li><a href="#sec-time">时间戳转换</a></li>
           </ul>
         </div>
@@ -68,30 +65,24 @@
       <p class="hint" style="margin-top: 0; margin-bottom: 20px;">
         左侧导航可快速跳转到各工具。本页所有处理均在<strong>当前浏览器本地</strong>完成，数据不上传至本站服务器（离线打开后亦可使用已缓存的页面能力）。
       </p>
-      <section class="section section-tab-page" id="sec-longest-xlsx" aria-labelledby="h-longest-xlsx">
+      <section class="section" id="sec-activation-code" aria-labelledby="h-activation-code">
         <div class="section-head">
-          <h2 id="h-longest-xlsx">最长文案</h2>
-          <span>单文件 ≤ 40 MB · 上传 xlsx · 下载结果</span>
+          <h2 id="h-activation-code">charles激活码生成</h2>
+          <span>纯浏览器本地计算</span>
         </div>
         <div class="card">
-          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>上传与处理</h3>
-          <p class="hint">
-            处理<strong>首个工作表</strong>：使用 <strong>Manrope 14px</strong> 在 Canvas 上测量排版宽度；从 <strong>en</strong> 列起扫描各语言列，将最宽文案写入 <strong>cc</strong>；删除 <code>key = addition_like_1</code> 的整行。表头须含 <strong>cc</strong> 列（IoT 国际化语种管理）。大表可能较慢。
-          </p>
-          <p class="hint" style="margin-top: -6px;">操作建议：<strong>选择文件</strong> → <strong>开始分析</strong>（完成后）→ <strong>下载结果 xlsx</strong>。「清空」会清除已选文件与日志。</p>
-          <input type="file" id="longest-xlsx-input" accept=".xlsx,.xls" hidden />
-          <div class="dropzone" id="longest-xlsx-drop" role="button" tabindex="0" aria-label="拖拽 Excel 到此处或点击选择">
-            将 <strong>.xlsx</strong> 拖到此处，或点击下方选择（不上传服务器，<strong>单文件 ≤ 40 MB</strong>）
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>输入关键字</h3>
+          <p class="hint">输入产品关键字后生成激活码。关键字仅在当前浏览器中处理，不会上传到服务器；同一关键字重复生成时，结果可以不同。</p>
+          <div class="row">
+            <input class="single" type="text" id="activation-code-input" placeholder="请输入关键字" autocomplete="off" style="max-width: 480px;" />
           </div>
-          <div class="row" style="margin-top: 12px;">
-            <button type="button" class="btn btn-primary" id="longest-xlsx-pick">选择文件</button>
-            <button type="button" class="btn btn-primary" id="longest-xlsx-run" disabled>开始分析</button>
-            <button type="button" class="btn btn-ghost" id="longest-xlsx-download" disabled>下载结果 xlsx</button>
-            <button type="button" class="btn btn-ghost" id="longest-xlsx-clear">清空</button>
+          <div class="row">
+            <button type="button" class="btn btn-primary" id="activation-code-generate">生成激活码</button>
           </div>
-          <p class="hint" id="longest-xlsx-filemeta" style="margin-top: 10px;">未选择文件</p>
-          <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-top:14px;" for="longest-xlsx-log">运行日志</label>
-          <textarea id="longest-xlsx-log" class="longest-xlsx-log" readonly rows="10" placeholder="处理过程将显示在这里…"></textarea>
+          <div class="output muted" id="activation-code-output-wrap" style="margin-top: 12px;">
+            <span class="output-text" id="activation-code-output">激活码将显示在这里</span>
+            <button type="button" class="btn btn-ghost" id="activation-code-copy" disabled>复制结果</button>
+          </div>
         </div>
       </section>
 
@@ -223,6 +214,142 @@
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-regex" aria-labelledby="h-regex">
+        <div class="section-head">
+          <h2 id="h-regex">正则表达式调试器</h2>
+          <span>JavaScript RegExp · 实时匹配与替换</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>输入正则表达式</h3>
+          <p class="hint">输入正则正文，无需填写首尾 <code>/</code>。Pattern、Flags、测试文本或替换模板变化后会自动重新匹配，所有内容仅在当前浏览器中处理。</p>
+
+          <label class="regex-field">
+            <span class="regex-field-label">Pattern</span>
+            <input class="single regex-pattern-input" type="text" id="regex-pattern" placeholder="例如：(?&lt;name&gt;[a-z]+)-(\d+)" autocomplete="off" spellcheck="false" />
+          </label>
+
+          <fieldset class="regex-flags">
+            <legend>Flags</legend>
+            <label class="choice"><input type="checkbox" name="regex-flag" value="g" checked /> <code>g</code> 全局</label>
+            <label class="choice"><input type="checkbox" name="regex-flag" value="i" /> <code>i</code> 忽略大小写</label>
+            <label class="choice"><input type="checkbox" name="regex-flag" value="m" /> <code>m</code> 多行</label>
+            <label class="choice"><input type="checkbox" name="regex-flag" value="s" /> <code>s</code> 点号匹配换行</label>
+            <label class="choice"><input type="checkbox" name="regex-flag" value="u" /> <code>u</code> Unicode</label>
+            <label class="choice"><input type="checkbox" name="regex-flag" value="y" /> <code>y</code> 粘连</label>
+          </fieldset>
+
+          <div class="regex-input-grid">
+            <label class="regex-field">
+              <span class="regex-field-label">测试文本</span>
+              <textarea id="regex-test-text" rows="8" placeholder="在此粘贴或输入待匹配文本…" spellcheck="false"></textarea>
+            </label>
+            <label class="regex-field">
+              <span class="regex-field-label">替换模板</span>
+              <textarea id="regex-replacement" rows="8" placeholder="例如：$&amp;、$1、$&lt;name&gt;；留空表示删除命中内容" spellcheck="false"></textarea>
+            </label>
+          </div>
+
+          <div class="row regex-actions">
+            <button type="button" class="btn btn-ghost" id="regex-clear">清空</button>
+          </div>
+          <p class="hint err" id="regex-error" role="alert" hidden></p>
+
+          <div class="regex-summary muted" id="regex-summary" aria-live="polite">请输入正则表达式开始调试</div>
+
+          <div class="regex-output-grid">
+            <div>
+              <span class="compare-result-label">匹配高亮</span>
+              <div class="regex-preview regex-highlight-preview" id="regex-highlight-preview">匹配结果将显示在这里</div>
+            </div>
+            <div>
+              <span class="compare-result-label">替换结果预览</span>
+              <div class="regex-preview" id="regex-replacement-preview">替换结果将显示在这里</div>
+            </div>
+          </div>
+
+          <div class="regex-details-wrap">
+            <span class="compare-result-label">匹配详情</span>
+            <div class="regex-match-list" id="regex-match-list">
+              <p class="regex-empty">匹配详情将显示在这里</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-cron" aria-labelledby="h-cron">
+        <div class="section-head">
+          <h2 id="h-cron">Cron 表达式计算</h2>
+          <span>Linux · Cron4j · Quartz · Spring</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>输入 Cron 表达式</h3>
+          <p class="hint">选择表达式类型后，计算从点击按钮时刻开始的未来执行计划。结果按当前浏览器时区展示，表达式仅在浏览器本地处理。</p>
+          <div class="cron-form-grid">
+            <label class="cron-field">
+              <span class="cron-field-label">类型</span>
+              <span class="select-wrap cron-select-wrap">
+                <select class="app-select" id="cron-type">
+                  <option value="linux">Linux</option>
+                  <option value="cron4j">Cron4j</option>
+                  <option value="quartz" selected>Quartz</option>
+                  <option value="spring">Spring</option>
+                </select>
+                <span class="select-chevron" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="cron-field">
+              <span class="cron-field-label">查看数量</span>
+              <input id="cron-count" class="cron-count-input" type="number" min="1" max="50" step="1" value="5" inputmode="numeric" />
+            </label>
+          </div>
+          <label class="cron-field cron-expression-field">
+            <span class="cron-field-label">Cron 表达式</span>
+            <input class="single" type="text" id="cron-expression" placeholder="例如：0 30 10 ? * MON-FRI" autocomplete="off" spellcheck="false" />
+          </label>
+          <div class="row cron-actions">
+            <button type="button" class="btn btn-primary" id="cron-calculate">查看执行计划</button>
+            <button type="button" class="btn btn-ghost" id="cron-clear">清空</button>
+          </div>
+          <p class="hint err" id="cron-error" role="alert" style="display: none;"></p>
+
+          <div class="cron-result muted" id="cron-result" aria-live="polite">
+            <div class="cron-result-head">
+              <div>
+                <span class="compare-result-label">表达式描述</span>
+                <p id="cron-description" class="cron-description">计算结果将显示在这里</p>
+              </div>
+              <div class="cron-result-meta">
+                <span id="cron-stale" class="cron-stale" hidden>结果基于上次计算</span>
+                <span id="cron-timezone">时区将在计算后显示</span>
+              </div>
+            </div>
+            <span class="compare-result-label">执行计划</span>
+            <ol id="cron-executions" class="cron-execution-list">
+              <li class="cron-empty">请先输入表达式并查看执行计划</li>
+            </ol>
+            <p class="hint" id="cron-partial" hidden></p>
+          </div>
+
+          <details class="cron-help">
+            <summary>字段和特殊字符说明</summary>
+            <div class="cron-help-content">
+              <div class="url-table-wrap">
+                <table class="url-table cron-type-table">
+                  <thead><tr><th>类型</th><th>字段结构</th><th>星期编号</th></tr></thead>
+                  <tbody>
+                    <tr><td>Linux</td><td><code>minute hour dayOfMonth month dayOfWeek</code></td><td>0–7，0/7 为星期日</td></tr>
+                    <tr><td>Cron4j</td><td><code>minute hour dayOfMonth month dayOfWeek</code></td><td>0–6，0 为星期日</td></tr>
+                    <tr><td>Quartz</td><td><code>second minute hour dayOfMonth month dayOfWeek [year]</code></td><td>1–7，1 为星期日</td></tr>
+                    <tr><td>Spring</td><td><code>second minute hour dayOfMonth month dayOfWeek</code></td><td>0–7，0/7 为星期日</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="hint cron-symbols"><code>*</code> 所有值；<code>?</code> 不指定月日/星期；<code>-</code> 范围；<code>,</code> 多个值；<code>/</code> 步长；<code>L</code> 最后；<code>W</code> 最近工作日；<code>#</code> 每月第几个星期。特殊字符是否可用取决于所选类型和字段。</p>
+            </div>
+          </details>
         </div>
       </section>
 
@@ -388,6 +515,114 @@
       <p class="footer-note">所有数据仅在本地浏览器处理；首次联网打开后可配合 Service Worker 离线使用。</p>
     </main>
   </div>
+  </div>
+
+  <div id="page-data-generator" class="data-generator-page" hidden>
+    <div class="data-generator-shell">
+      <header class="data-generator-hero">
+        <div>
+          <span class="data-generator-eyebrow">DATA LAB · 浏览器本地处理</span>
+          <h1>测试数据生成</h1>
+          <p>快速取一个值，或组合字段批量生成接口、数据库与自动化测试数据。</p>
+        </div>
+        <div class="data-generator-safety"><strong>仅供软件测试使用</strong><span>配置和结果不会上传 · 行政区划为内置测试样本</span></div>
+      </header>
+
+      <div class="data-generator-tabs" role="tablist" aria-label="测试数据生成分区">
+        <button type="button" class="data-generator-tab" data-generator-view="quick" aria-selected="true">快速生成</button>
+        <button type="button" class="data-generator-tab" data-generator-view="builder" aria-selected="false">组合生成</button>
+        <button type="button" class="data-generator-tab" data-generator-view="templates" aria-selected="false">模板管理</button>
+      </div>
+
+      <section id="data-generator-quick" class="data-generator-panel" aria-labelledby="data-generator-quick-title">
+        <div class="data-generator-panel-head">
+          <div><h2 id="data-generator-quick-title">快速取样</h2><p>选择一种字段，配置规则后立即生成。</p></div>
+          <span class="data-generator-step">单字段</span>
+        </div>
+        <div class="data-generator-workbench">
+          <div class="data-generator-controls">
+            <label>数据类型<select id="data-quick-type"></select></label>
+            <div id="data-quick-options" class="data-generator-option-grid"></div>
+            <div class="data-generator-option-grid">
+              <label>数据模式<select id="data-quick-mode"><option value="valid">有效数据</option><option value="boundary">边界数据</option><option value="invalid">无效数据</option><option value="mixed">混合数据</option></select></label>
+              <label>生成数量<input id="data-quick-count" type="number" min="1" max="10000" value="10" /></label>
+              <label>随机种子<input id="data-quick-seed" type="text" placeholder="留空则自动生成" /></label>
+            </div>
+            <div class="data-generator-actions">
+              <button type="button" class="btn btn-primary" id="data-quick-generate">生成数据</button>
+              <button type="button" class="btn btn-ghost" id="data-quick-copy" disabled>复制全部</button>
+              <button type="button" class="btn btn-ghost" id="data-quick-clear">清空</button>
+            </div>
+          </div>
+          <div class="data-generator-sample">
+            <div class="data-generator-result-head"><strong>生成结果</strong><span id="data-quick-summary">尚未生成</span></div>
+            <pre id="data-quick-result" class="data-generator-code">选择数据类型后点击“生成数据”</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="data-generator-builder" class="data-generator-panel" hidden aria-labelledby="data-generator-builder-title">
+        <div class="data-generator-panel-head">
+          <div><h2 id="data-generator-builder-title">数据模型设计器</h2><p>按字段轨道配置结构、规则和关联，再批量生成。</p></div>
+          <span class="data-generator-step">多字段</span>
+        </div>
+        <div class="data-generator-builder-grid">
+          <aside class="data-generator-field-rail">
+            <div class="data-generator-rail-head"><strong>字段轨道</strong><button type="button" class="btn btn-primary" id="data-field-add">添加字段</button></div>
+            <div id="data-field-list" class="data-generator-field-list"></div>
+          </aside>
+          <div class="data-generator-field-editor">
+            <div id="data-field-editor"></div>
+          </div>
+        </div>
+        <div class="data-generator-batch-bar">
+          <label>模型名称<input id="data-model-name" value="未命名数据模型" /></label>
+          <label>生成数量<input id="data-model-count" type="number" min="1" max="10000" value="20" /></label>
+          <label>随机种子<input id="data-model-seed" placeholder="留空则自动生成" /></label>
+          <label class="data-generator-check"><input id="data-model-meta" type="checkbox" /> 导出异常说明</label>
+          <button type="button" class="btn btn-primary" id="data-model-generate">批量生成</button>
+          <button type="button" class="btn btn-ghost" id="data-model-cancel" disabled>取消</button>
+        </div>
+        <div id="data-model-status" class="data-generator-status" role="status">先添加字段，再生成数据。</div>
+        <div class="data-generator-result-card">
+          <div class="data-generator-result-head">
+            <strong>数据预览</strong>
+            <div class="data-generator-actions">
+              <button type="button" class="btn btn-ghost" id="data-copy-json" disabled>复制 JSON</button>
+              <button type="button" class="btn btn-ghost" id="data-export-json" disabled>导出 JSON</button>
+              <button type="button" class="btn btn-ghost" id="data-export-csv" disabled>导出 CSV</button>
+            </div>
+          </div>
+          <div id="data-preview" class="data-generator-preview"><p>尚未生成组合数据。</p></div>
+        </div>
+        <div class="data-generator-sql">
+          <div class="data-generator-option-grid">
+            <label>SQL 方言<select id="data-sql-dialect"><option value="mysql">MySQL</option><option value="postgresql">PostgreSQL</option><option value="sqlite">SQLite</option></select></label>
+            <label>表名<input id="data-sql-table" value="test_data" /></label>
+            <label>每批行数<input id="data-sql-batch" type="number" min="1" max="1000" value="500" /></label>
+            <label class="data-generator-check"><input id="data-sql-transaction" type="checkbox" /> 包裹事务</label>
+          </div>
+          <button type="button" class="btn btn-ghost" id="data-export-sql" disabled>导出 SQL</button>
+        </div>
+      </section>
+
+      <section id="data-generator-templates" class="data-generator-panel" hidden aria-labelledby="data-generator-templates-title">
+        <div class="data-generator-panel-head">
+          <div><h2 id="data-generator-templates-title">模板管理</h2><p>内置模板可直接加载，本地模板只保存配置、不保存生成结果。</p></div>
+          <span class="data-generator-step">本机存储</span>
+        </div>
+        <div class="data-generator-template-toolbar">
+          <label>模板<select id="data-template-select"></select></label>
+          <button type="button" class="btn btn-primary" id="data-template-load">加载到组合生成</button>
+          <button type="button" class="btn btn-ghost" id="data-template-save">保存当前模型</button>
+          <button type="button" class="btn btn-ghost" id="data-template-export">导出配置</button>
+          <button type="button" class="btn btn-ghost" id="data-template-import">导入配置</button>
+          <button type="button" class="btn btn-ghost" id="data-template-delete">删除本地模板</button>
+          <input id="data-template-file" type="file" accept=".json,application/json" hidden />
+        </div>
+        <div id="data-template-summary" class="data-generator-template-summary">选择模板后可查看字段摘要。</div>
+      </section>
+    </div>
   </div>
 
   <div id="page-emq" class="page-emq" hidden>

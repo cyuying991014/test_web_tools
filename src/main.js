@@ -11,9 +11,12 @@ import {
   resetFindHighlights
 } from './jsonTree.js'
 import { registerSW } from 'virtual:pwa-register'
-import { ensureManropeLoaded, processLongestFontXlsx, MSG_NO_CC } from './longestXlsx.js'
 import { initEmqTool } from './emqApp.js'
 import { parseUrlDetails } from './urlParser.js'
+import { generateActivationCode } from './activationCode.js'
+import { calculateCronSchedule, formatCronExecution, getCronPlaceholder } from './cronCalculator.js'
+import { debugRegex } from './regexDebugger.js'
+import { initDataGenerator } from './dataGenerator/dataGeneratorApp.js'
 
 registerSW({ immediate: true })
 
@@ -209,6 +212,40 @@ document.getElementById('md5-text-calc').addEventListener('click', () => {
 })
 
 document.getElementById('md5-text-copy').addEventListener('click', () => copyText(lastTextMd5))
+
+/* —— 激活码生成 —— */
+const activationCodeInput = document.getElementById('activation-code-input')
+const activationCodeOutput = document.getElementById('activation-code-output')
+const activationCodeOutputWrap = document.getElementById('activation-code-output-wrap')
+const activationCodeCopy = document.getElementById('activation-code-copy')
+let lastActivationCode = ''
+
+function setActivationCodeResult(message, isError = false) {
+  lastActivationCode = isError ? '' : message
+  activationCodeOutput.textContent = message
+  activationCodeOutputWrap.classList.toggle('muted', !message || isError)
+  activationCodeOutputWrap.classList.toggle('err', isError)
+  activationCodeCopy.disabled = !lastActivationCode
+}
+
+function handleActivationCodeGenerate() {
+  try {
+    setActivationCodeResult(generateActivationCode(activationCodeInput.value))
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '激活码生成失败'
+    setActivationCodeResult(message, true)
+    showToast(message)
+  }
+}
+
+document.getElementById('activation-code-generate').addEventListener('click', handleActivationCodeGenerate)
+activationCodeInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    event.preventDefault()
+    handleActivationCodeGenerate()
+  }
+})
+activationCodeCopy.addEventListener('click', () => copyText(lastActivationCode))
 
 /* —— JSON 树 + 查找替换 —— */
 const jsonInput = document.getElementById('json-input')
@@ -449,6 +486,292 @@ document.getElementById('url-clear').addEventListener('click', () => {
 })
 
 document.getElementById('url-copy-json').addEventListener('click', () => copyText(lastUrlParseJson))
+
+/* —— 正则表达式调试器 —— */
+const regexPattern = document.getElementById('regex-pattern')
+const regexTestText = document.getElementById('regex-test-text')
+const regexReplacement = document.getElementById('regex-replacement')
+const regexFlagInputs = [...document.querySelectorAll('input[name="regex-flag"]')]
+const regexError = document.getElementById('regex-error')
+const regexSummary = document.getElementById('regex-summary')
+const regexHighlightPreview = document.getElementById('regex-highlight-preview')
+const regexReplacementPreview = document.getElementById('regex-replacement-preview')
+const regexMatchList = document.getElementById('regex-match-list')
+let regexDebounceTimer = null
+
+function appendPlainText(parent, text) {
+  parent.appendChild(document.createTextNode(text))
+}
+
+function renderRegexHighlights(text, matches) {
+  const fragment = document.createDocumentFragment()
+  let cursor = 0
+
+  matches.forEach((match, index) => {
+    if (match.index > cursor) appendPlainText(fragment, text.slice(cursor, match.index))
+
+    if (match.isZeroLength) {
+      const marker = document.createElement('span')
+      marker.className = 'regex-zero-marker'
+      marker.title = `第 ${index + 1} 个零长度匹配，位置 ${match.index}`
+      marker.setAttribute('aria-label', marker.title)
+      fragment.appendChild(marker)
+      cursor = Math.max(cursor, match.index)
+      return
+    }
+
+    const mark = document.createElement('mark')
+    mark.className = `regex-hit regex-hit-${index % 2}`
+    mark.title = `第 ${index + 1} 个匹配，位置 ${match.index}`
+    mark.textContent = text.slice(match.index, match.endIndex)
+    fragment.appendChild(mark)
+    cursor = match.endIndex
+  })
+
+  if (cursor < text.length) appendPlainText(fragment, text.slice(cursor))
+  regexHighlightPreview.replaceChildren(fragment)
+}
+
+function createRegexGroupList(groups, namedGroups) {
+  const list = document.createElement('ul')
+  list.className = 'regex-group-list'
+
+  groups.forEach((group) => {
+    const item = document.createElement('li')
+    const value = group.matched ? JSON.stringify(group.value) : '未参与匹配'
+    item.textContent = `$${group.index}：${value}`
+    list.appendChild(item)
+  })
+
+  namedGroups.forEach((group) => {
+    const item = document.createElement('li')
+    const value = group.matched ? JSON.stringify(group.value) : '未参与匹配'
+    item.textContent = `$<${group.name}>：${value}`
+    list.appendChild(item)
+  })
+
+  return list
+}
+
+function renderRegexDetails(matches) {
+  if (matches.length === 0) {
+    const empty = document.createElement('p')
+    empty.className = 'regex-empty'
+    empty.textContent = '没有匹配项'
+    regexMatchList.replaceChildren(empty)
+    return
+  }
+
+  const fragment = document.createDocumentFragment()
+  matches.forEach((match, index) => {
+    const item = document.createElement('article')
+    item.className = 'regex-match-item'
+
+    const head = document.createElement('div')
+    head.className = 'regex-match-head'
+    const title = document.createElement('strong')
+    title.textContent = `匹配 ${index + 1}`
+    const position = document.createElement('span')
+    position.textContent = match.isZeroLength
+      ? `位置 ${match.index} · 零长度`
+      : `位置 ${match.index}–${match.endIndex}`
+    head.append(title, position)
+
+    const value = document.createElement('pre')
+    value.className = 'regex-match-value'
+    value.textContent = match.isZeroLength ? '（零长度匹配）' : match.value
+    item.append(head, value)
+
+    if (match.groups.length || match.namedGroups.length) {
+      item.appendChild(createRegexGroupList(match.groups, match.namedGroups))
+    }
+    fragment.appendChild(item)
+  })
+  regexMatchList.replaceChildren(fragment)
+}
+
+function setRegexEmptyState(message = '请输入正则表达式开始调试') {
+  regexError.hidden = true
+  regexError.textContent = ''
+  regexSummary.textContent = message
+  regexSummary.classList.add('muted')
+  regexHighlightPreview.textContent = '匹配结果将显示在这里'
+  regexReplacementPreview.textContent = '替换结果将显示在这里'
+  const empty = document.createElement('p')
+  empty.className = 'regex-empty'
+  empty.textContent = '匹配详情将显示在这里'
+  regexMatchList.replaceChildren(empty)
+}
+
+function runRegexDebugger() {
+  const pattern = regexPattern.value
+  if (pattern === '') {
+    setRegexEmptyState()
+    return
+  }
+
+  const flags = regexFlagInputs.filter((input) => input.checked).map((input) => input.value).join('')
+  try {
+    const result = debugRegex({
+      pattern,
+      flags,
+      testText: regexTestText.value,
+      replacement: regexReplacement.value,
+      maxMatches: 500
+    })
+    regexError.hidden = true
+    regexError.textContent = ''
+    regexSummary.classList.remove('muted')
+    regexSummary.textContent = result.truncated
+      ? `已展示前 ${result.matchCount} 个匹配，更多结果已截断`
+      : `找到 ${result.matchCount} 个匹配`
+    renderRegexHighlights(regexTestText.value, result.matches)
+    regexReplacementPreview.textContent = result.replacementResult
+    renderRegexDetails(result.matches)
+  } catch (error) {
+    regexError.textContent = error instanceof Error ? error.message : '正则表达式执行失败'
+    regexError.hidden = false
+    regexSummary.textContent = '请修正正则表达式后重试'
+    regexSummary.classList.add('muted')
+    regexHighlightPreview.textContent = '当前正则无法执行'
+    regexReplacementPreview.textContent = '当前正则无法执行'
+    const empty = document.createElement('p')
+    empty.className = 'regex-empty'
+    empty.textContent = '当前没有可展示的匹配详情'
+    regexMatchList.replaceChildren(empty)
+  }
+}
+
+function scheduleRegexDebugger() {
+  clearTimeout(regexDebounceTimer)
+  regexDebounceTimer = setTimeout(runRegexDebugger, 120)
+}
+
+regexPattern.addEventListener('input', scheduleRegexDebugger)
+regexTestText.addEventListener('input', scheduleRegexDebugger)
+regexReplacement.addEventListener('input', scheduleRegexDebugger)
+regexFlagInputs.forEach((input) => input.addEventListener('change', scheduleRegexDebugger))
+document.getElementById('regex-clear').addEventListener('click', () => {
+  clearTimeout(regexDebounceTimer)
+  regexPattern.value = ''
+  regexTestText.value = ''
+  regexReplacement.value = ''
+  regexFlagInputs.forEach((input) => {
+    input.checked = input.value === 'g'
+  })
+  setRegexEmptyState()
+  regexPattern.focus()
+})
+
+/* —— Cron 表达式计算 —— */
+const cronType = document.getElementById('cron-type')
+const cronCount = document.getElementById('cron-count')
+const cronExpression = document.getElementById('cron-expression')
+const cronCalculate = document.getElementById('cron-calculate')
+const cronError = document.getElementById('cron-error')
+const cronResult = document.getElementById('cron-result')
+const cronDescription = document.getElementById('cron-description')
+const cronTimezone = document.getElementById('cron-timezone')
+const cronExecutions = document.getElementById('cron-executions')
+const cronPartial = document.getElementById('cron-partial')
+const cronStale = document.getElementById('cron-stale')
+let hasCronResult = false
+
+function setCronEmptyResult(message = '请先输入表达式并查看执行计划') {
+  hasCronResult = false
+  cronResult.classList.add('muted')
+  cronDescription.textContent = '计算结果将显示在这里'
+  cronTimezone.textContent = '时区将在计算后显示'
+  cronExecutions.innerHTML = ''
+  const empty = document.createElement('li')
+  empty.className = 'cron-empty'
+  empty.textContent = message
+  cronExecutions.appendChild(empty)
+  cronPartial.hidden = true
+  cronPartial.textContent = ''
+  cronStale.hidden = true
+}
+
+function markCronResultStale() {
+  if (hasCronResult) cronStale.hidden = false
+}
+
+function showCronError(message) {
+  cronError.textContent = message
+  cronError.style.display = 'block'
+  setCronEmptyResult('请修正表达式后重新计算')
+}
+
+async function handleCronCalculate() {
+  const originalText = cronCalculate.textContent
+  cronCalculate.disabled = true
+  cronCalculate.textContent = '正在计算…'
+  cronError.style.display = 'none'
+  cronError.textContent = ''
+
+  await Promise.resolve()
+  try {
+    const result = calculateCronSchedule({
+      type: cronType.value,
+      expression: cronExpression.value,
+      count: cronCount.value,
+      startTime: new Date()
+    })
+
+    cronDescription.textContent = result.description
+    cronTimezone.textContent = `时区：${result.timeZone}`
+    cronExecutions.innerHTML = ''
+    result.executions.forEach((execution) => {
+      const item = document.createElement('li')
+      item.textContent = formatCronExecution(execution)
+      cronExecutions.appendChild(item)
+    })
+
+    if (result.executions.length === 0) {
+      const empty = document.createElement('li')
+      empty.className = 'cron-empty'
+      empty.textContent = '当前计算范围内没有未来执行时间'
+      cronExecutions.appendChild(empty)
+    }
+
+    cronPartial.hidden = !result.isPartial
+    cronPartial.textContent = result.isPartial
+      ? `仅找到 ${result.executions.length} 次未来执行时间，未达到请求数量。`
+      : ''
+    cronResult.classList.remove('muted')
+    cronStale.hidden = true
+    hasCronResult = true
+  } catch (error) {
+    showCronError(error instanceof Error ? error.message : 'Cron 表达式计算失败')
+  } finally {
+    cronCalculate.disabled = false
+    cronCalculate.textContent = originalText
+  }
+}
+
+cronType.addEventListener('change', () => {
+  cronExpression.placeholder = getCronPlaceholder(cronType.value)
+  markCronResultStale()
+})
+cronCount.addEventListener('input', markCronResultStale)
+cronExpression.addEventListener('input', markCronResultStale)
+cronExpression.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    event.preventDefault()
+    handleCronCalculate()
+  }
+})
+cronCalculate.addEventListener('click', handleCronCalculate)
+document.getElementById('cron-clear').addEventListener('click', () => {
+  cronType.value = 'quartz'
+  cronCount.value = '5'
+  cronExpression.value = ''
+  cronExpression.placeholder = getCronPlaceholder('quartz')
+  cronError.style.display = 'none'
+  cronError.textContent = ''
+  setCronEmptyResult()
+  cronExpression.focus()
+})
 
 /* —— 时间戳 ↔ 时间 —— */
 const tsInput = document.getElementById('ts-input')
@@ -781,142 +1104,5 @@ document.getElementById('radix-convert').addEventListener('click', () => {
   radixResults.classList.remove('err', 'muted')
 })
 
-/* —— 最长文案 xlsx —— */
-const LONGEST_MAX_MB = 40
-const longestInput = document.getElementById('longest-xlsx-input')
-const longestDrop = document.getElementById('longest-xlsx-drop')
-const longestPick = document.getElementById('longest-xlsx-pick')
-const longestRun = document.getElementById('longest-xlsx-run')
-const longestDownload = document.getElementById('longest-xlsx-download')
-const longestClear = document.getElementById('longest-xlsx-clear')
-const longestLog = document.getElementById('longest-xlsx-log')
-const longestMeta = document.getElementById('longest-xlsx-filemeta')
-
-let longestFile = null
-let longestOutBytes = null
-let longestOutName = ''
-
-function setLongestLog(text) {
-  longestLog.value = text
-}
-
-function setLongestFile(file) {
-  longestOutBytes = null
-  longestOutName = ''
-  longestDownload.disabled = true
-  if (!file) {
-    longestFile = null
-    longestRun.disabled = true
-    longestMeta.textContent = '未选择文件'
-    return
-  }
-  const maxB = LONGEST_MAX_MB * 1024 * 1024
-  if (file.size > maxB) {
-    longestFile = null
-    longestRun.disabled = true
-    longestMeta.textContent = `文件超过 ${LONGEST_MAX_MB} MB，请换较小的 xlsx`
-    showToast(`单文件不能超过 ${LONGEST_MAX_MB} MB`)
-    return
-  }
-  longestFile = file
-  const mb = (file.size / (1024 * 1024)).toFixed(2)
-  longestMeta.textContent = `已选：${file.name}（${mb} MB）`
-  longestRun.disabled = false
-}
-
-longestPick.addEventListener('click', () => longestInput.click())
-longestInput.addEventListener('change', () => {
-  const f = longestInput.files?.[0]
-  if (f) setLongestFile(f)
-  longestInput.value = ''
-})
-
-;['dragenter', 'dragover'].forEach((ev) => {
-  longestDrop.addEventListener(ev, (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    longestDrop.classList.add('dragover')
-  })
-})
-;['dragleave', 'drop'].forEach((ev) => {
-  longestDrop.addEventListener(ev, (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    longestDrop.classList.remove('dragover')
-  })
-})
-longestDrop.addEventListener('drop', (e) => {
-  const f = e.dataTransfer?.files?.[0]
-  if (f && /\.(xlsx|xls)$/i.test(f.name)) setLongestFile(f)
-  else if (f) showToast('请上传 .xlsx 或 .xls')
-})
-longestDrop.addEventListener('click', () => longestInput.click())
-longestDrop.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault()
-    longestInput.click()
-  }
-})
-
-longestClear.addEventListener('click', () => {
-  setLongestFile(null)
-  setLongestLog('')
-})
-
-longestRun.addEventListener('click', async () => {
-  if (!longestFile) return
-  const maxB = LONGEST_MAX_MB * 1024 * 1024
-  if (longestFile.size > maxB) {
-    showToast(`文件超过 ${LONGEST_MAX_MB} MB`)
-    return
-  }
-  longestRun.disabled = true
-  longestDownload.disabled = true
-  setLongestLog('正在加载字体与分析，请稍候…')
-  try {
-    await ensureManropeLoaded(import.meta.env.BASE_URL)
-    const ab = await longestFile.arrayBuffer()
-    const { outBytes, downloadName, stats, lines } = await processLongestFontXlsx(ab, longestFile.name)
-    longestOutBytes = outBytes
-    longestOutName = downloadName
-    longestDownload.disabled = false
-    const tail = [
-      '—',
-      `完成：处理 ${stats.processed} 行，跳过 ${stats.skipped} 行。`,
-      stats.langStats && Object.keys(stats.langStats).length
-        ? `各语言「最宽」次数：` +
-          Object.entries(stats.langStats)
-            .sort((a, b) => b[1] - a[1])
-            .map(([k, v]) => `${k}:${v}`)
-            .join(' · ')
-        : ''
-    ]
-    setLongestLog([...lines, ...tail].filter(Boolean).join('\n'))
-    showToast('分析完成，可下载结果')
-  } catch (e) {
-    const msg = e.message || String(e)
-    setLongestLog(`错误：${msg}`)
-    if (msg.includes(MSG_NO_CC) || msg === MSG_NO_CC) {
-      showToast(MSG_NO_CC)
-    } else {
-      showToast('处理失败，见日志')
-    }
-  } finally {
-    longestRun.disabled = false
-  }
-})
-
-longestDownload.addEventListener('click', () => {
-  if (!longestOutBytes?.length) return
-  const blob = new Blob([longestOutBytes], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  })
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob)
-  a.download = longestOutName || 'result.xlsx'
-  a.click()
-  URL.revokeObjectURL(a.href)
-  showToast('已开始下载')
-})
-
 initEmqTool({ showToast, copyText })
+initDataGenerator({ showToast, copyText })

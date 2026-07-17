@@ -11,12 +11,17 @@
     "preview": "vite preview",
     "test:json-find": "node scripts/verify-json-find.mjs",
     "test:json-replace": "node scripts/verify-json-replace.mjs",
-    "test:url-parser": "node scripts/verify-url-parser.mjs"
+    "test:url-parser": "node scripts/verify-url-parser.mjs",
+    "test:activation-code": "node scripts/verify-activation-code.mjs",
+    "test:cron": "node scripts/verify-cron.mjs",
+    "test:regex": "node scripts/verify-regex-debugger.mjs",
+    "test:data-generator": "node scripts/verify-data-generator-core.mjs && node scripts/verify-data-generator-exporters.mjs && node scripts/verify-data-generator-page.mjs && node scripts/verify-data-generator-ui.mjs"
   },
   "dependencies": {
+    "cronosjs": "^1.7.1",
+    "cronstrue": "^3.24.0",
     "diff": "^7.0.0",
-    "spark-md5": "^3.0.2",
-    "xlsx": "^0.18.5"
+    "spark-md5": "^3.0.2"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",
