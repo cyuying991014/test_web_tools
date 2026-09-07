@@ -17,6 +17,7 @@ import { generateActivationCode } from './activationCode.js'
 import { calculateCronSchedule, formatCronExecution, getCronPlaceholder } from './cronCalculator.js'
 import { debugRegex } from './regexDebugger.js'
 import { initDataGenerator } from './dataGenerator/dataGeneratorApp.js'
+import { convertTemperature, formatTemperature } from './temperatureConverter.js'
 
 registerSW({ immediate: true })
 
@@ -874,6 +875,48 @@ document.getElementById('dt-convert').addEventListener('click', () => {
 })
 
 dtTsCopy.addEventListener('click', () => copyText(lastDtTsNumeric))
+
+/* —— 摄氏度 ↔ 华氏度 —— */
+const temperatureInput = document.getElementById('temperature-input')
+const temperatureOutput = document.getElementById('temperature-output')
+const temperatureOutputWrap = document.getElementById('temperature-output-wrap')
+const temperatureCopy = document.getElementById('temperature-copy')
+let lastTemperatureResult = ''
+
+function setTemperatureResult(text, isError = false, hasResult = !isError) {
+  lastTemperatureResult = hasResult ? text : ''
+  temperatureOutput.textContent = text
+  temperatureOutputWrap.classList.toggle('muted', isError || !hasResult)
+  temperatureOutputWrap.classList.toggle('err', isError)
+  temperatureCopy.disabled = !lastTemperatureResult
+}
+
+function handleTemperatureConvert() {
+  const direction = document.querySelector('input[name="temperature-direction"]:checked').value
+  try {
+    const converted = formatTemperature(convertTemperature(temperatureInput.value, direction))
+    const sourceUnit = direction === 'c-to-f' ? '°C' : '°F'
+    const targetUnit = direction === 'c-to-f' ? '°F' : '°C'
+    const source = temperatureInput.value.trim()
+    setTemperatureResult(`${source} ${sourceUnit} = ${converted} ${targetUnit}`)
+  } catch (error) {
+    setTemperatureResult(error instanceof Error ? error.message : '温度转换失败', true)
+  }
+}
+
+document.getElementById('temperature-convert').addEventListener('click', handleTemperatureConvert)
+temperatureInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    event.preventDefault()
+    handleTemperatureConvert()
+  }
+})
+temperatureCopy.addEventListener('click', () => copyText(lastTemperatureResult))
+document.getElementById('temperature-clear').addEventListener('click', () => {
+  temperatureInput.value = ''
+  setTemperatureResult('转换结果将显示在这里', false, false)
+  temperatureInput.focus()
+})
 
 /* —— 比较 —— */
 const cmpJsonOut = document.getElementById('cmp-json-out')

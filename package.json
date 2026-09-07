@@ -15,6 +15,7 @@
     "test:activation-code": "node scripts/verify-activation-code.mjs",
     "test:cron": "node scripts/verify-cron.mjs",
     "test:regex": "node scripts/verify-regex-debugger.mjs",
+    "test:temperature": "node scripts/verify-temperature-converter.mjs",
     "test:data-generator": "node scripts/verify-data-generator-core.mjs && node scripts/verify-data-generator-exporters.mjs && node scripts/verify-data-generator-page.mjs && node scripts/verify-data-generator-ui.mjs"
   },
   "dependencies": {
