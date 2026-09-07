@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script type="module" crossorigin src="/test_web_tools/assets/index-GlfkNxbm.js"></script>
+  <script type="module" crossorigin src="/test_web_tools/assets/index-CRrEkcUf.js"></script>
   <link rel="stylesheet" crossorigin href="/test_web_tools/assets/index-CC8w4NuQ.css">
 <link rel="manifest" href="/test_web_tools/manifest.webmanifest"></head>
 <body>
@@ -51,6 +51,12 @@
             <li><a href="#sec-regex">正则表达式调试器</a></li>
             <li><a href="#sec-cron">Cron 表达式计算</a></li>
             <li><a href="#sec-time">时间戳转换</a></li>
+          </ul>
+        </div>
+        <div class="nav-group">
+          <p class="nav-group-title">实用换算</p>
+          <ul>
+            <li><a href="#sec-temperature">摄氏度 ↔ 华氏度</a></li>
           </ul>
         </div>
         <div class="nav-group">
@@ -398,6 +404,32 @@
           </div>
           <div class="output muted" id="dt-ts-wrap" style="margin-top: 8px;">
             <span class="output-text" id="dt-ts-out">转换结果将显示在这里</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-temperature" aria-labelledby="h-temperature">
+        <div class="section-head">
+          <h2 id="h-temperature">摄氏度 ↔ 华氏度</h2>
+          <span>温度单位互转</span>
+        </div>
+        <div class="card">
+          <h3 class="card-title"><span class="dot" aria-hidden="true"></span>输入温度</h3>
+          <p class="hint">选择转换方向并输入温度值。支持负数和小数，结果最多保留 6 位小数；所有计算均在当前浏览器本地完成。</p>
+          <div class="row">
+            <label class="choice"><input type="radio" name="temperature-direction" id="temperature-c-to-f" value="c-to-f" checked /> 摄氏度（°C）→ 华氏度（°F）</label>
+            <label class="choice"><input type="radio" name="temperature-direction" id="temperature-f-to-c" value="f-to-c" /> 华氏度（°F）→ 摄氏度（°C）</label>
+          </div>
+          <div class="row">
+            <input class="single" type="text" id="temperature-input" placeholder="例如 37 或 -40.5" inputmode="decimal" autocomplete="off" style="max-width: 320px;" />
+          </div>
+          <div class="row">
+            <button type="button" class="btn btn-primary" id="temperature-convert">转换</button>
+            <button type="button" class="btn btn-ghost" id="temperature-copy" disabled>复制结果</button>
+            <button type="button" class="btn btn-ghost" id="temperature-clear">清空</button>
+          </div>
+          <div class="output muted" id="temperature-output-wrap" style="margin-top: 8px;" aria-live="polite">
+            <span class="output-text" id="temperature-output">转换结果将显示在这里</span>
           </div>
         </div>
       </section>
